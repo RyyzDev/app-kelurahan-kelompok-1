@@ -1,3 +1,17 @@
+.root-vars {
+  /* legacy container for global variables kept separate */
+}
+
+:root {
+  --accent: #0b72ff;
+  --accent-bg: rgba(11,114,255,0.06);
+  --accent-border: rgba(11,114,255,0.14);
+  --text-h: #0f172a;
+  --social-bg: #f3f4f6;
+  --border: #e6e7eb;
+  --shadow: 0 8px 20px rgba(2,6,23,0.08);
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

@@ -17,9 +17,13 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@reduxjs/toolkit": "^2.12.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@yudiel/react-qr-scanner": "^2.6.0",
     "axios": "^1.16.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
+    "idb": "^8.0.3",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.17.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.6",
@@ -31,6 +35,7 @@
     "recharts": "^2.15.4",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.6.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {

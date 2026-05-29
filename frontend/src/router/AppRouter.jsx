@@ -1,12 +1,28 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import LoginPage from '../pages/LoginPage';
-import AntrianPage from '../pages/warga/AntrianPage';
+import RegisterPage from '../pages/RegisterPage';
+import HomePage from '../pages/warga/HomePage';
+import PersuratanMenuPage from '../pages/warga/PersuratanMenuPage';
+import BuatSuratPage from '../pages/warga/BuatSuratPage';
+import DaftarStatusSuratPage from '../pages/warga/DaftarStatusSuratPage';
+import DetailStatusSuratPage from '../pages/warga/DetailStatusSuratPage';
+import BansosMenuPage from '../pages/warga/BansosMenuPage';
+import BansosPage from '../pages/warga/BansosPage';
+import AspirasiPage from '../pages/warga/AspirasiPage';
+import UMKMPage from '../pages/warga/UMKMPage';
 import DashboardPage from '../pages/admin/DashboardPage';
+import VerifikasiPage from '../pages/admin/VerifikasiPage';
+import ScanPage from '../pages/petugas/ScanPage';
 
-// Placeholder pages for Phase 1
-const HomePage = () => <div className="p-8"><h1>Warga Home Page</h1></div>;
-const UnauthorizedPage = () => <div className="p-8 text-center text-red-500"><h1>Akses Ditolak</h1></div>;
+const UnauthorizedPage = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+    <div className="text-center p-8 bg-white rounded-[32px] shadow-xl border border-gray-100 max-w-sm">
+      <h1 className="text-2xl font-black text-red-500 uppercase tracking-tighter mb-2">Akses Ditolak</h1>
+      <p className="text-gray-500 font-bold text-sm">Anda tidak memiliki izin untuk mengakses halaman ini.</p>
+    </div>
+  </div>
+);
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { user } = useSelector((state) => state.auth);
@@ -27,6 +43,7 @@ const AppRouter = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Warga Routes */}
@@ -38,11 +55,84 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         />
+        
+        {/* Persuratan Routes */}
         <Route
-          path="/warga/antrian"
+          path="/warga/persuratan"
           element={
             <ProtectedRoute allowedRoles={['warga']}>
-              <AntrianPage />
+              <PersuratanMenuPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/persuratan/buat"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <BuatSuratPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/persuratan/status"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <DaftarStatusSuratPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/persuratan/status/:id"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <DetailStatusSuratPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Bansos Routes */}
+        <Route
+          path="/warga/bansos"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <BansosMenuPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/bansos/daftar"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <BansosPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/bansos/penyaluran"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <div className="p-8 font-sans">
+                 <h1 className="text-2xl font-black">Info Penyaluran</h1>
+                 <p className="text-gray-500 font-bold mt-4 italic">Halaman informasi penyaluran bansos segera hadir.</p>
+                 <button onClick={() => window.history.back()} className="mt-8 text-[#0047AB] font-black uppercase tracking-widest text-xs">Kembali</button>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/warga/aspirasi"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <AspirasiPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/warga/umkm"
+          element={
+            <ProtectedRoute allowedRoles={['warga']}>
+              <UMKMPage />
             </ProtectedRoute>
           }
         />
@@ -53,6 +143,24 @@ const AppRouter = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/verifikasi"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <VerifikasiPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Petugas Routes */}
+        <Route
+          path="/petugas"
+          element={
+            <ProtectedRoute allowedRoles={['petugas']}>
+              <ScanPage />
             </ProtectedRoute>
           }
         />

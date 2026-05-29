@@ -8,40 +8,48 @@ const mockQueue = [
 
 const AntrianTable = () => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-border overflow-hidden">
-      <div className="p-6 border-b border-border flex justify-between items-center">
-        <h3 className="text-lg font-bold text-text-h">Live Antrean</h3>
-        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full animate-pulse">Live Update</span>
+    <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-white">
+        <h3 className="text-xl font-extrabold text-gray-800 tracking-tight">Live Antrean</h3>
+        <div className="flex items-center space-x-2">
+           <span className="flex h-2 w-2">
+             <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75"></span>
+             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+           </span>
+           <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Monitoring Aktif</span>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left">
-          <thead className="bg-secondary text-text text-sm uppercase">
+          <thead className="bg-[#F8FAFC] text-gray-400 text-[10px] uppercase tracking-[0.2em] font-black">
             <tr>
-              <th className="px-6 py-4 font-semibold">No. Antrean</th>
-              <th className="px-6 py-4 font-semibold">Nama Warga</th>
-              <th className="px-6 py-4 font-semibold">Slot Waktu</th>
-              <th className="px-6 py-4 font-semibold">Status</th>
-              <th className="px-6 py-4 font-semibold">Aksi</th>
+              <th className="px-8 py-5">No. Antrean</th>
+              <th className="px-8 py-5">Nama Warga</th>
+              <th className="px-8 py-5">Slot Waktu</th>
+              <th className="px-8 py-5">Status</th>
+              <th className="px-8 py-5 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-gray-50">
             {mockQueue.map((item) => (
-              <tr key={item.id} className="hover:bg-secondary/50 transition">
-                <td className="px-6 py-4 font-bold text-primary">{item.number}</td>
-                <td className="px-6 py-4 text-text-h font-medium">{item.name}</td>
-                <td className="px-6 py-4 text-text">{item.slot}</td>
-                <td className="px-6 py-4">
+              <tr key={item.id} className="hover:bg-blue-50/30 transition-colors group">
+                <td className="px-8 py-6 font-black text-[#0047AB] text-lg tracking-tighter">{item.number}</td>
+                <td className="px-8 py-6 text-gray-800 font-extrabold">{item.name}</td>
+                <td className="px-8 py-6 text-gray-500 font-bold text-sm">{item.slot}</td>
+                <td className="px-8 py-6">
                   <span className={`
-                    px-3 py-1 rounded-full text-xs font-bold
-                    ${item.status === 'Selesai' ? 'bg-gray-100 text-gray-600' : ''}
-                    ${item.status === 'Melayani' ? 'bg-green-100 text-green-600' : ''}
-                    ${item.status === 'Menunggu' ? 'bg-yellow-100 text-yellow-600' : ''}
+                    px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest inline-block
+                    ${item.status === 'Selesai' ? 'bg-gray-100 text-gray-500' : ''}
+                    ${item.status === 'Melayani' ? 'bg-green-50 text-green-600 border border-green-100' : ''}
+                    ${item.status === 'Menunggu' ? 'bg-orange-50 text-orange-600 border border-orange-100' : ''}
                   `}>
                     {item.status}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  <button className="text-primary hover:underline text-sm font-semibold">Detail</button>
+                <td className="px-8 py-6 text-right">
+                  <button className="text-[#0047AB] hover:bg-[#0047AB] hover:text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-transparent hover:shadow-md">
+                    Detail
+                  </button>
                 </td>
               </tr>
             ))}

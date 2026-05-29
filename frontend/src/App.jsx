@@ -1,9 +1,16 @@
-import React from 'react'
-import MainPage from './pages/MainPage'
-import './App.css'
+import { Provider } from 'react-redux';
+import { store } from './store';
+import AppRouter from './router/AppRouter';
+import { Toaster } from 'react-hot-toast';
+import './index.css';
 
 function App() {
-  return <MainPage />
+  return (
+    <Provider store={store}>
+      <AppRouter />
+      <Toaster position="top-right" reverseOrder={false} />
+    </Provider>
+  );
 }
 
-export default App
+export default App;

@@ -27,4 +27,4 @@ dist-ssr
 .env.production
 
 GEMINI.md 
-.gemini/*
+.gemini

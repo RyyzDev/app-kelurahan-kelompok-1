@@ -46,10 +46,18 @@ const BuatSuratPage = () => {
     }, 2000);
   };
 
+  const handleBack = () => {
+    if (step === 1 || step === 4) {
+      navigate('/warga');
+    } else {
+      setStep(step - 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12 font-sans">
       <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center sticky top-0 z-10 shadow-sm">
-        <button onClick={() => step === 4 ? navigate('/warga/persuratan') : setStep(step > 1 ? step - 1 : 1)} className="mr-4 p-2 hover:bg-gray-50 rounded-full transition text-gray-500">
+        <button onClick={handleBack} className="mr-4 p-2 hover:bg-gray-50 rounded-full transition text-gray-500">
           <ArrowLeft size={24} strokeWidth={2.5} />
         </button>
         <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">
@@ -229,7 +237,7 @@ const BuatSuratPage = () => {
                   Cek Status Surat Saya
                 </button>
                 <button 
-                  onClick={() => navigate('/warga/persuratan')}
+                  onClick={() => navigate('/warga')}
                   className="w-full py-4 bg-white border border-gray-200 rounded-2xl text-gray-400 font-black uppercase tracking-widest text-[10px] hover:text-[#0047AB] transition-all active:scale-95"
                 >
                   Kembali ke Menu

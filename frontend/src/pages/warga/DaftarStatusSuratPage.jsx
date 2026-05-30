@@ -34,7 +34,7 @@ const DaftarStatusSuratPage = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12 font-sans">
       <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center sticky top-0 z-10 shadow-sm">
-        <button onClick={() => navigate('/warga/persuratan')} className="mr-4 p-2 hover:bg-gray-50 rounded-full transition text-gray-500">
+        <button onClick={() => navigate('/warga')} className="mr-4 p-2 hover:bg-gray-50 rounded-full transition text-gray-500">
           <ArrowLeft size={24} strokeWidth={2.5} />
         </button>
         <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">Status Surat Saya</h1>

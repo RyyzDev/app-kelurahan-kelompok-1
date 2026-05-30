@@ -3,14 +3,13 @@ import { useSelector } from 'react-redux';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import HomePage from '../pages/warga/HomePage';
-import PersuratanMenuPage from '../pages/warga/PersuratanMenuPage';
 import BuatSuratPage from '../pages/warga/BuatSuratPage';
 import DaftarStatusSuratPage from '../pages/warga/DaftarStatusSuratPage';
 import DetailStatusSuratPage from '../pages/warga/DetailStatusSuratPage';
-import BansosMenuPage from '../pages/warga/BansosMenuPage';
 import BansosPage from '../pages/warga/BansosPage';
 import AspirasiPage from '../pages/warga/AspirasiPage';
 import UMKMPage from '../pages/warga/UMKMPage';
+import ProfilePage from '../pages/warga/ProfilePage';
 import DashboardPage from '../pages/admin/DashboardPage';
 import VerifikasiPage from '../pages/admin/VerifikasiPage';
 import ScanPage from '../pages/petugas/ScanPage';
@@ -55,16 +54,16 @@ const AppRouter = () => {
             </ProtectedRoute>
           }
         />
-        
-        {/* Persuratan Routes */}
         <Route
-          path="/warga/persuratan"
+          path="/warga/profil"
           element={
             <ProtectedRoute allowedRoles={['warga']}>
-              <PersuratanMenuPage />
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
+        
+        {/* Persuratan Routes */}
         <Route
           path="/warga/persuratan/buat"
           element={
@@ -92,14 +91,6 @@ const AppRouter = () => {
 
         {/* Bansos Routes */}
         <Route
-          path="/warga/bansos"
-          element={
-            <ProtectedRoute allowedRoles={['warga']}>
-              <BansosMenuPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/warga/bansos/daftar"
           element={
             <ProtectedRoute allowedRoles={['warga']}>
@@ -111,10 +102,12 @@ const AppRouter = () => {
           path="/warga/bansos/penyaluran"
           element={
             <ProtectedRoute allowedRoles={['warga']}>
-              <div className="p-8 font-sans">
-                 <h1 className="text-2xl font-black">Info Penyaluran</h1>
-                 <p className="text-gray-500 font-bold mt-4 italic">Halaman informasi penyaluran bansos segera hadir.</p>
-                 <button onClick={() => window.history.back()} className="mt-8 text-[#0047AB] font-black uppercase tracking-widest text-xs">Kembali</button>
+              <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-8 font-sans">
+                 <div className="bg-white p-10 rounded-[40px] shadow-xl border border-gray-100 text-center max-w-sm w-full">
+                    <h1 className="text-2xl font-black text-gray-800">Info Penyaluran</h1>
+                    <p className="text-gray-400 font-bold mt-4 italic text-sm">Halaman informasi penyaluran bansos segera hadir.</p>
+                    <button onClick={() => window.history.back()} className="mt-10 w-full py-4 bg-[#0047AB] text-white rounded-2xl font-black uppercase tracking-widest text-[10px]">Kembali</button>
+                 </div>
               </div>
             </ProtectedRoute>
           }

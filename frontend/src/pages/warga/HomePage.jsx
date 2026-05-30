@@ -1,167 +1,197 @@
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../../store/authSlice';
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { 
   FileEdit, 
   FileText, 
   MessageSquare, 
   ShoppingBag, 
-  Search, 
-  ChevronRight, 
   Home, 
   LayoutGrid, 
   Bell, 
   User as UserIcon,
-  AlertCircle
+  Sparkles
 } from 'lucide-react';
+import ChatDrawer from '../../components/chatbot/ChatDrawer';
+import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
+import BansosDrawer from '../../components/bansos/BansosDrawer';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
+  const [isBansosOpen, setIsBansosOpen] = useState(false);
 
   const services = [
-    { name: 'Layanan Persuratan', icon: FileEdit, color: 'bg-[#EF4444]', iconColor: 'text-white', path: '/warga/persuratan' },
-    { name: 'Bansos Digital', icon: FileText, color: 'bg-[#E6F6F4]', iconColor: 'text-[#34A853]', path: '/warga/bansos' },
-    { name: 'Saran & Aspirasi', icon: MessageSquare, color: 'bg-[#E6F0F9]', iconColor: 'text-[#0047AB]', path: '/warga/aspirasi' },
-    { name: 'UMKM Corner', icon: ShoppingBag, color: 'bg-[#F9F1E6]', iconColor: 'text-[#D97706]', path: '/warga/umkm' },
+    { 
+      name: 'Layanan Persuratan', 
+      icon: FileEdit, 
+      color: 'bg-[#EF4444]', 
+      iconColor: 'text-white', 
+      onClick: () => setIsPersuratanOpen(true)
+    },
+    { 
+      name: 'Bansos Digital', 
+      icon: FileText, 
+      color: 'bg-[#E6F6F4]', 
+      iconColor: 'text-[#34A853]', 
+      onClick: () => setIsBansosOpen(true)
+    },
+    { 
+      name: 'Saran & Aspirasi', 
+      icon: MessageSquare, 
+      color: 'bg-[#E6F0F9]', 
+      iconColor: 'text-[#0047AB]', 
+      onClick: () => navigate('/warga/aspirasi')
+    },
+    { 
+      name: 'UMKM Corner', 
+      icon: ShoppingBag, 
+      color: 'bg-[#F9F1E6]', 
+      iconColor: 'text-[#D97706]', 
+      onClick: () => navigate('/warga/umkm')
+    },
   ];
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans relative overflow-x-hidden">
-      {/* Header Section with Sky Gradient & Skyline */}
+    <div className="min-h-screen bg-[#F8FAFC] pb-32 font-sans relative overflow-x-hidden">
+      {/* Header Section */}
       <div className="h-64 bg-gradient-to-b from-[#BFDBFE] to-[#F8FAFC] relative overflow-hidden">
-        {/* Sky Elements */}
         <div className="absolute top-10 left-10 w-16 h-16 bg-white/40 rounded-full blur-2xl"></div>
         <div className="absolute top-20 right-20 w-24 h-24 bg-white/30 rounded-full blur-3xl"></div>
         
-        {/* Centered Logo Placeholder */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+           {[...Array(5)].map((_, i) => (
+             <div 
+               key={i} 
+               className="crane-container"
+               style={{ 
+                 top: `${20 + (i * 8)}%`, 
+                 animationDelay: `${i * 1.5}s`,
+                 animationDuration: `${15 + (i * 2)}s` 
+               }}
+             >
+               <svg viewBox="0 0 50 50" className="crane w-8 h-8 fill-gray-400 opacity-40">
+                  <path className="wing-top" d="M25 25 L40 10 L35 25 Z" />
+                  <path className="wing-bottom" d="M25 25 L40 40 L35 25 Z" />
+                  <path d="M10 25 L25 25 L20 28 L10 25 Z" />
+               </svg>
+             </div>
+           ))}
+        </div>
+
         <div className="absolute top-6 left-0 right-0 flex justify-center items-center flex-col z-10">
            <div className="flex items-center space-x-1">
               <div className="bg-[#34A853] w-3 h-3 rounded-sm"></div>
               <div className="bg-[#FBBC05] w-3 h-3 rounded-sm"></div>
               <div className="bg-[#EA4335] w-3 h-3 rounded-sm"></div>
            </div>
-           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase">SI-<span className="text-[#0047AB]">GERCAP</span></h1>
+           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase text-center">SI-GERCAP <span className="text-[#0047AB]">LIVE</span></h1>
         </div>
 
-        {/* Landmarks / Landmark Silhouette */}
-        <div className="absolute bottom-0 left-0 w-full opacity-20 pointer-events-none flex justify-center items-end h-full">
-          <svg viewBox="0 0 1200 200" fill="#0047AB" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <rect x="50" y="100" width="40" height="100" />
-            <rect x="100" y="60" width="30" height="140" />
-            <rect x="140" y="120" width="50" height="80" />
-            <rect x="200" y="40" width="20" height="160" />
-            <rect x="230" y="80" width="40" height="120" />
-            <rect x="300" y="50" width="60" height="150" />
-            <rect x="380" y="110" width="30" height="90" />
-            <rect x="420" y="30" width="20" height="170" />
-            <rect x="460" y="70" width="50" height="130" />
-            <path d="M550 50 L580 0 L610 50 V200 H550 Z" />
-            <rect x="650" y="80" width="40" height="120" />
-            <rect x="710" y="40" width="20" height="160" />
-            <rect x="750" y="100" width="50" height="100" />
-            <rect x="820" y="60" width="30" height="140" />
-            <rect x="870" y="120" width="40" height="80" />
-            <rect x="930" y="30" width="20" height="170" />
-            <rect x="970" y="70" width="60" height="130" />
+        <div className="absolute bottom-0 left-0 w-full opacity-20 pointer-events-none flex items-end">
+          <svg viewBox="0 0 1200 120" fill="#0047AB" xmlns="http://www.w3.org/2000/svg" className="w-full h-24 md:h-32" preserveAspectRatio="none">
+            <rect x="50" y="60" width="40" height="60" /><rect x="100" y="30" width="30" height="90" /><path d="M550 30 L580 0 L610 30 V120 H550 Z" />
+            <rect x="650" y="50" width="40" height="70" /><rect x="970" y="40" width="60" height="80" />
           </svg>
         </div>
       </div>
 
-      {/* Floating User Greeting Card */}
-      <div className="px-5 -mt-20 relative z-20 text-center">
+      {/* Floating Greeting */}
+      <div className="px-5 -mt-20 relative z-20">
         <div className="bg-white rounded-[28px] p-5 shadow-xl shadow-blue-900/5 border border-white flex items-center space-x-4 max-w-lg mx-auto">
-          <div className="bg-[#FFF7ED] w-14 h-14 rounded-2xl flex items-center justify-center shrink-0">
+          <div className="bg-[#FFF7ED] w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
              <span className="text-2xl">👋</span>
           </div>
-          <div className="overflow-hidden text-left">
-            <span>Halo, </span><h2 className="text-lg font-extrabold text-gray-800 leading-tight truncate">{user?.name || 'Warga'}</h2>
+          <div>
+            <h2 className="text-lg font-extrabold text-gray-800 leading-tight truncate">{user?.name || 'Fachri Akbar Kutubi'}</h2>
             <p className="text-[11px] text-gray-400 font-medium leading-relaxed italic">Pelayanan Gercap & Terintegrasi.</p>
           </div>
         </div>
       </div>
 
-      {/* Menu Header */}
-      <div className="px-6 mt-8 flex justify-between items-center max-w-lg mx-auto">
-        <h3 className="font-extrabold text-gray-800 tracking-tight">Menu Layanan</h3>
-      </div>
-
-      {/* Service Icons Grid */}
-      <div className="px-5 mt-8 grid grid-cols-3 gap-y-10 max-w-lg mx-auto">
+      {/* Services Icons */}
+      <div className="px-5 mt-12 grid grid-cols-4 gap-4 max-w-lg mx-auto">
         {services.map((service, idx) => (
-          <button 
-            key={idx}
-            onClick={() => navigate(service.path)}
-            className="flex flex-col items-center group"
-          >
-            <div className={`${service.color} ${service.iconColor} w-16 h-16 rounded-full flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-all duration-300`}>
-               <service.icon size={28} strokeWidth={2.5} />
+          <button key={idx} onClick={service.onClick} className="flex flex-col items-center group text-center">
+            <div className={`${service.color} ${service.iconColor} w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-all duration-300`}>
+               <service.icon size={24} strokeWidth={2.5} />
             </div>
-            <span className="text-[10px] font-extrabold text-gray-600 text-center leading-tight max-w-[80px]">
+            <span className="text-[9px] font-extrabold text-gray-500 leading-tight">
               {service.name}
             </span>
           </button>
         ))}
       </div>
 
-      {/* Promotional Banner */}
+      {/* Banner */}
       <div className="px-5 mt-12 max-w-lg mx-auto">
-        <div className="bg-[#0047AB] rounded-[32px] p-8 text-white relative overflow-hidden group cursor-pointer shadow-xl shadow-blue-200">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-transform duration-700"></div>
-           <div className="relative z-10 text-left">
-              <h4 className="text-2xl font-black leading-tight max-w-[200px]">Pelayanan Digital Lebih Mudah</h4>
-              <div className="mt-4 inline-flex items-center space-x-2 bg-white/20 px-3 py-1 rounded-full backdrop-blur-md border border-white/20">
-                 <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-                 <span className="text-[10px] font-black uppercase tracking-widest">Update Terbaru</span>
-              </div>
-           </div>
+        <div className="bg-[#0047AB] rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl shadow-blue-200">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+           <h4 className="text-2xl font-black leading-tight max-w-[200px] relative z-10">Pelayanan Digital Lebih Mudah</h4>
         </div>
       </div>
 
-      {/* Event Section */}
-      <div className="px-5 mt-10 max-w-lg mx-auto">
-        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100">
-           <h3 className="text-left font-extrabold text-gray-800 mb-6">Informasi & Pengumuman</h3>
-           <div className="py-4 text-center">
-              <div className="bg-gray-50 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 text-gray-300">
-                 <AlertCircle size={24} />
-              </div>
-              <p className="text-sm font-bold text-gray-400 italic">Belum ada pengumuman baru</p>
-           </div>
-        </div>
-      </div>
-
-      {/* Modern Bottom Navigation */}
+      {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-5 right-5 z-50 max-w-lg mx-auto">
-        <div className="bg-white/80 backdrop-blur-xl border border-white/50 rounded-[24px] shadow-2xl shadow-blue-900/10 p-2 flex items-center justify-between">
-          <button onClick={() => navigate('/warga')} className="flex flex-col items-center flex-1 py-2">
-            <div className="bg-[#0047AB] p-2.5 rounded-2xl text-white shadow-lg shadow-blue-200">
-              <Home size={20} strokeWidth={2.5} />
+        <div className="bg-white/80 backdrop-blur-xl border border-white/50 rounded-[28px] shadow-2xl shadow-blue-900/10 p-2 flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/warga')} 
+            className={`flex flex-col items-center flex-1 py-2 transition-all duration-300 ${isActive('/warga') ? 'text-[#0047AB]' : 'text-gray-400'}`}
+          >
+            <div className={`${isActive('/warga') ? 'bg-blue-50 p-2.5 rounded-2xl shadow-inner' : ''}`}>
+              <Home size={22} strokeWidth={isActive('/warga') ? 3 : 2} />
             </div>
-            <span className="text-[9px] font-black text-[#0047AB] mt-1 uppercase tracking-widest">Beranda</span>
+            <span className={`text-[9px] font-black mt-1 uppercase tracking-widest ${isActive('/warga') ? 'opacity-100' : 'opacity-0'}`}>Beranda</span>
           </button>
           
-          <button className="flex flex-col items-center flex-1 py-2 text-gray-400 hover:text-[#0047AB] transition-colors">
-            <LayoutGrid size={20} strokeWidth={2} />
+          <button 
+            onClick={() => setIsPersuratanOpen(true)}
+            className={`flex flex-col items-center flex-1 py-2 transition-all duration-300 text-gray-400`}
+          >
+            <div className="p-2.5">
+               <LayoutGrid size={22} strokeWidth={2} />
+            </div>
           </button>
 
-          <button className="flex flex-col items-center flex-1 py-2 text-gray-400 hover:text-[#0047AB] transition-colors">
-            <Bell size={20} strokeWidth={2} />
+          <button onClick={() => setIsChatOpen(true)} className="flex flex-col items-center -mt-10 px-2">
+            <div className="bg-[#0047AB] p-4 rounded-[22px] text-white shadow-xl shadow-blue-200 border-4 border-white active:scale-95 transition-all">
+              <Sparkles size={28} strokeWidth={2.5} />
+            </div>
+          </button>
+
+          <button className="flex flex-col items-center flex-1 py-2 text-gray-400">
+            <Bell size={22} strokeWidth={2} />
           </button>
 
           <button 
-            onClick={() => dispatch(logout())}
-            className="flex flex-col items-center flex-1 py-2 text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => navigate('/warga/profil')}
+            className={`flex flex-col items-center flex-1 py-2 transition-all duration-300 ${isActive('/warga/profil') ? 'text-[#0047AB]' : 'text-gray-400'}`}
           >
-            <UserIcon size={20} strokeWidth={2} />
+            <div className={`${isActive('/warga/profil') ? 'bg-blue-50 p-2.5 rounded-2xl shadow-inner' : ''}`}>
+              <UserIcon size={22} strokeWidth={isActive('/warga/profil') ? 3 : 2} />
+            </div>
+            <span className={`text-[9px] font-black mt-1 uppercase tracking-widest ${isActive('/warga/profil') ? 'opacity-100' : 'opacity-0'}`}>Profil</span>
           </button>
         </div>
       </div>
 
+      {/* Drawers */}
+      <ChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <PersuratanDrawer isOpen={isPersuratanOpen} onClose={() => setIsPersuratanOpen(false)} />
+      <BansosDrawer isOpen={isBansosOpen} onClose={() => setIsBansosOpen(false)} />
+
       <style dangerouslySetInnerHTML={{ __html: `
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .crane-container { position: absolute; left: -10%; animation: fly-across linear infinite; }
+        .wing-top { transform-origin: 25px 25px; animation: flap-top 0.4s ease-in-out infinite alternate; }
+        .wing-bottom { transform-origin: 25px 25px; animation: flap-bottom 0.4s ease-in-out infinite alternate; }
+        @keyframes fly-across { 0% { left: -10%; transform: scaleX(1); } 45% { left: 110%; transform: scaleX(1); } 50% { left: 110%; transform: scaleX(-1); } 95% { left: -10%; transform: scaleX(-1); } 100% { left: -10%; transform: scaleX(1); } }
+        @keyframes flap-top { from { transform: rotate(0deg); } to { transform: rotate(-60deg); } }
+        @keyframes flap-bottom { from { transform: rotate(0deg); } to { transform: rotate(60deg); } }
       `}} />
     </div>
   );

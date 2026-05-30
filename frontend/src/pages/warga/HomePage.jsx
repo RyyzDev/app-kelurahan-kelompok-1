@@ -90,7 +90,8 @@ const HomePage = () => {
               <div className="bg-[#FBBC05] w-3 h-3 rounded-sm"></div>
               <div className="bg-[#EA4335] w-3 h-3 rounded-sm"></div>
            </div>
-           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase text-center">SI-GERCAP <span className="text-[#0047AB]">LIVE</span></h1>
+           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase text-center">SI-<span className="text-[#0047AB]">GERCAP</span></h1>
+           <h3 className="text-[11px] text-gray-330 font-small leading-relaxed">Sistem Digital Kelurahan Cepat & Terintegrasi</h3>
         </div>
 
         <div className="absolute bottom-0 left-0 w-full opacity-20 pointer-events-none flex items-end">
@@ -108,8 +109,8 @@ const HomePage = () => {
              <span className="text-2xl">👋</span>
           </div>
           <div>
-            <h2 className="text-lg font-extrabold text-gray-800 leading-tight truncate">{user?.name || 'Fachri Akbar Kutubi'}</h2>
-            <p className="text-[11px] text-gray-400 font-medium leading-relaxed italic">Pelayanan Gercap & Terintegrasi.</p>
+            <h2 className="text-lg font-extrabold text-gray-800 leading-tight truncate">Halo, {user?.name}</h2>
+            <p className="text-[11px] text-gray-400 font-medium leading-relaxed italic">Punya keperluan apa hari ini?</p>
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ import {
 import ChatDrawer from '../../components/chatbot/ChatDrawer';
 import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
 import BansosDrawer from '../../components/bansos/BansosDrawer';
+import VaksinasiDrawer from '../../components/vaksinasi/VaksinasiDrawer';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const HomePage = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
   const [isBansosOpen, setIsBansosOpen] = useState(false);
+  const [isVaksinasiOpen, setIsVaksinasiOpen] = useState(false);
 
   const services = [
     { 
@@ -31,6 +33,13 @@ const HomePage = () => {
       color: 'bg-[#EF4444]', 
       iconColor: 'text-white', 
       onClick: () => setIsPersuratanOpen(true)
+    },
+    {
+      name: 'Vaksinasi',
+      icon: FileEdit,
+      color: 'bg-[#E6F6F4}',
+      iconColor: 'text-[#34A853]',
+      onClick: () => setIsVaksinasiOpen(true)
     },
     { 
       name: 'Bansos Digital', 
@@ -185,6 +194,7 @@ const HomePage = () => {
       <ChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <PersuratanDrawer isOpen={isPersuratanOpen} onClose={() => setIsPersuratanOpen(false)} />
       <BansosDrawer isOpen={isBansosOpen} onClose={() => setIsBansosOpen(false)} />
+      <VaksinasiDrawer isOpen={isVaksinasiOpen} onClose={() => setIsVaksinasiOpen(false)} />
 
       <style dangerouslySetInnerHTML={{ __html: `
         .crane-container { position: absolute; left: -10%; animation: fly-across linear infinite; }

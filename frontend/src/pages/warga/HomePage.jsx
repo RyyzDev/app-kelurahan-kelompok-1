@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { 
   FileEdit, 
-  FileText, 
+  FileText,
+  Syringe, 
   MessageSquare, 
   ShoppingBag, 
   Home, 
@@ -36,7 +37,7 @@ const HomePage = () => {
     },
     {
       name: 'Vaksinasi',
-      icon: FileEdit,
+      icon: Syringe,
       color: 'bg-[#E6F6F4}',
       iconColor: 'text-[#34A853]',
       onClick: () => setIsVaksinasiOpen(true)

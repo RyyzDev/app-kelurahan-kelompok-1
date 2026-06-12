@@ -5,10 +5,14 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Attach JWT token otomatis
+// Attach JWT token otomatis dan bypass ngrok warning
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  
+  // Tambahkan header bypass ngrok
+  config.headers['ngrok-skip-browser-warning'] = 'true';
+  
   return config;
 });
 

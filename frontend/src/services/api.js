@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  baseURL: 'https://churchy-unpacifistic-velva.ngrok-free.dev/api' || 'http://localhost:5000/api',
   timeout: 10000,
 });
 

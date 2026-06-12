@@ -1,52 +1,96 @@
 import { openDB } from 'idb';
 
-const DB_NAME = 'sigercap_offline';
-const STORE_NAME = 'scans';
+const DB_NAME = 'sigercap-offline';
+const REQUEST_STORE = 'pending-requests';
+const SCAN_STORE = 'pending-scans';
 
-const dbPromise = openDB(DB_NAME, 1, {
-  upgrade(db) {
-    if (!db.objectStoreNames.contains(STORE_NAME)) {
-      db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-    }
-  },
-});
+const initDB = async () => {
+  return openDB(DB_NAME, 1, {
+    upgrade(db) {
+      if (!db.objectStoreNames.contains(REQUEST_STORE)) {
+        db.createObjectStore(REQUEST_STORE, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(SCAN_STORE)) {
+        db.createObjectStore(SCAN_STORE, { keyPath: 'id', autoIncrement: true });
+      }
+    },
+  });
+};
+
+// --- Generic Request Queue (Citizens) ---
+
+export const queueOfflineRequest = async (type, data) => {
+  const db = await initDB();
+  const tx = db.transaction(REQUEST_STORE, 'readwrite');
+  await tx.objectStore(REQUEST_STORE).add({
+    type,
+    data,
+    timestamp: Date.now(),
+  });
+  await tx.done;
+};
+
+export const getQueuedRequests = async () => {
+  const db = await initDB();
+  return db.getAll(REQUEST_STORE);
+};
+
+export const clearQueuedRequests = async () => {
+  const db = await initDB();
+  const tx = db.transaction(REQUEST_STORE, 'readwrite');
+  await tx.objectStore(REQUEST_STORE).clear();
+  await tx.done;
+};
+
+// --- QR Scan Queue (Petugas) ---
 
 export const saveScanOffline = async (scanData) => {
-  const db = await dbPromise;
-  const dataToSave = {
+  const db = await initDB();
+  const tx = db.transaction(SCAN_STORE, 'readwrite');
+  await tx.objectStore(SCAN_STORE).add({
     ...scanData,
-    timestamp: new Date().toISOString(),
-    synced: false,
-  };
-  return db.add(STORE_NAME, dataToSave);
+    scanned_at: new Date().toISOString()
+  });
+  await tx.done;
 };
 
 export const getPendingScans = async () => {
-  const db = await dbPromise;
-  const allScans = await db.getAll(STORE_NAME);
-  return allScans.filter(scan => !scan.synced);
+  const db = await initDB();
+  return db.getAll(SCAN_STORE);
 };
 
 export const markScanAsSynced = async (id) => {
-  const db = await dbPromise;
-  const scan = await db.get(STORE_NAME, id);
-  if (scan) {
-    scan.synced = true;
-    return db.put(STORE_NAME, scan);
-  }
+  const db = await initDB();
+  const tx = db.transaction(SCAN_STORE, 'readwrite');
+  await tx.objectStore(SCAN_STORE).delete(id);
+  await tx.done;
 };
 
-export const clearSyncedScans = async () => {
-  const db = await dbPromise;
-  const tx = db.transaction(STORE_NAME, 'readwrite');
-  const store = tx.objectStore(STORE_NAME);
-  let cursor = await store.openCursor();
+// --- Global Sync Helper ---
 
-  while (cursor) {
-    if (cursor.value.synced) {
-      cursor.delete();
+export const syncOfflineData = async () => {
+  if (!navigator.onLine) return;
+  
+  const pending = await getQueuedRequests();
+  if (pending.length === 0) return;
+
+  try {
+    const response = await api.post('/sync', { requests: pending });
+    if (response.data.success) {
+      await clearQueuedRequests();
+      console.log('Sync complete:', response.data.data);
+      return true;
     }
-    cursor = await cursor.continue();
+  } catch (err) {
+    console.error('Sync failed:', err);
   }
-  return tx.done;
+  return false;
 };
+
+// Auto-trigger sync when coming back online
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    console.log('Back online! Triggering sync...');
+    syncOfflineData();
+  });
+}

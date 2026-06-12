@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  warga
+  admin
+  petugas
+}
+
+model User {
+  id            String    @id @default(uuid())
+  nik           String    @unique // Dienkripsi di DB sesuai GEMINI.md
+  email         String?   @unique
+  nama_lengkap  String
+  tanggal_lahir DateTime?
+  phone         String?
+  alamat        String?   // Dienkripsi di DB sesuai GEMINI.md
+  password      String    // bcrypt hash
+  role          Role      @default(warga)
+  is_active     Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  permohonan    PermohonanSurat[]
+  toko          Toko?
+  @@map("users")
+}
+
+model Toko {
+  id            String    @id @default(uuid())
+  user_id       String    @unique
+  nama_toko     String
+  deskripsi     String?
+  alamat_toko   String?
+  phone_toko    String?
+  is_active     Boolean   @default(true)
+  
+  user          User      @relation(fields: [user_id], references: [id])
+  produk        Produk[]
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("toko")
+}
+
+enum StatusProduk {
+  pending
+  disetujui
+  ditolak
+}
+
+model Produk {
+  id              String       @id @default(uuid())
+  toko_id         String
+  nama_produk     String
+  deskripsi       String?
+  harga           Decimal      @db.Decimal(12, 2)
+  kategori        String?
+  stok            Int          @default(0)
+  foto_url        String?
+  status          StatusProduk @default(pending)
+  catatan_admin   String?
+  
+  toko            Toko         @relation(fields: [toko_id], references: [id])
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  @@map("produk")
+}
+
+model JenisSurat {
+  id                String   @id @default(uuid())
+  nama_layanan      String   @unique
+  deskripsi         String?
+  persyaratan       String[] // Array of strings for required documents
+  estimasi_pengerjaan Int?      // In working days
+  is_active         Boolean  @default(true)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  permohonan        PermohonanSurat[]
+  @@map("jenis_surat")
+}
+
+enum FormatSurat {
+  digital
+  cap_basah
+}
+
+enum StatusPermohonan {
+  verifikasi
+  penandatanganan_rt
+  penandatanganan_rw
+  penandatanganan
+  siap_diambil
+  siap_didownload
+  selesai
+  ditolak
+}
+
+model PermohonanSurat {
+  id                String           @id @default(uuid())
+  user_id           String
+  jenis_surat_id    String
+  format_surat      FormatSurat      @default(digital)
+  alasan_permohonan String
+  status            StatusPermohonan @default(verifikasi)
+  catatan_admin     String?
+  file_url          String?          // URL untuk download jika format digital
+  nomor_surat       String?          // Nomor surat resmi setelah disetujui
+  
+  user              User             @relation(fields: [user_id], references: [id])
+  jenis_surat       JenisSurat       @relation(fields: [jenis_surat_id], references: [id])
+
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  @@map("permohonan_surat")
+}

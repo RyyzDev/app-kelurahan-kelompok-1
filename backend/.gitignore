@@ -25,3 +25,7 @@ dist-ssr
 
 .env
 .env.production
+
+GEMINI.md 
+.gemini
+/src/generated/prisma

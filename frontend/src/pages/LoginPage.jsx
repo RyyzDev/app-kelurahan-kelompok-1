@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
-  nik: z.string().min(1, 'NIK/Email wajib diisi'),
+  identifier: z.string().min(1, 'NIK/Email wajib diisi'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
@@ -111,17 +111,17 @@ const LoginPage = () => {
         <h1 className="text-[34px] font-extrabold text-[#333] mb-8 tracking-tight">Login</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* NIK Input */}
+          {/* NIK/Email Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <User size={20} className="text-[#0047AB]" strokeWidth={2.5} />
             </div>
             <input
-              {...register('nik')}
+              {...register('identifier')}
               className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#0047AB]/20 focus:border-[#0047AB] outline-none transition-all text-gray-700 placeholder-gray-400 font-medium text-sm"
               placeholder="Masukkan NIK / Alamat Email"
             />
-            {errors.nik && <p className="mt-1.5 ml-2 text-[11px] text-red-500 font-bold">{errors.nik.message}</p>}
+            {errors.identifier && <p className="mt-1.5 ml-2 text-[11px] text-red-500 font-bold">{errors.identifier.message}</p>}
           </div>
 
           {/* Password Input */}

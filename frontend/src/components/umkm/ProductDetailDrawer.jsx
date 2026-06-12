@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingCart, Info, ShieldCheck, Star, CheckCircle2 } from 'lucide-react';
+import { X, ShoppingCart, Info, ShieldCheck, Star, CheckCircle2, ShoppingBag } from 'lucide-react';
 
 const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }) => {
   if (!product) return null;
@@ -37,11 +37,17 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }
             <div className="flex-1 overflow-y-auto no-scrollbar pb-32">
                {/* Product Image Header */}
                <div className="relative h-72 w-full px-6">
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover rounded-[32px] shadow-lg"
-                  />
+                  {product.foto_url ? (
+                    <img 
+                      src={product.foto_url} 
+                      alt={product.nama_produk} 
+                      className="w-full h-full object-cover rounded-[32px] shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-50 rounded-[32px] flex items-center justify-center text-gray-200">
+                       <ShoppingBag size={80} />
+                    </div>
+                  )}
                   <button 
                     onClick={onClose}
                     className="absolute top-4 right-10 p-3 bg-white/80 backdrop-blur-md text-gray-800 rounded-2xl shadow-xl hover:bg-white transition-all"
@@ -54,16 +60,16 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }
                   {/* Title & Price */}
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                       <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight max-w-[70%]">{product.name}</h2>
-                       <p className="text-2xl font-black text-[#0047AB]">{product.price}</p>
+                       <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight max-w-[70%]">{product.nama_produk}</h2>
+                       <p className="text-2xl font-black text-[#0047AB]">Rp {Number(product.harga).toLocaleString('id-ID')}</p>
                     </div>
                     <div className="flex items-center space-x-3">
                        <span className="text-[10px] font-black uppercase tracking-widest text-[#34A853] bg-green-50 px-3 py-1.5 rounded-full border border-green-100">
-                         {product.category}
+                         {product.kategori || 'Produk UMKM'}
                        </span>
                        <div className="flex items-center text-orange-400">
                           <Star size={14} fill="currentColor" />
-                          <span className="ml-1 text-xs font-black">4.9 (120+ Review)</span>
+                          <span className="ml-1 text-xs font-black">4.9 (Terpopuler)</span>
                        </div>
                     </div>
                   </div>
@@ -74,12 +80,12 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }
                         <Info size={16} className="mr-2" /> Narasi Produk
                      </h3>
                      <p className="text-gray-600 font-medium leading-relaxed">
-                        Produk unggulan dari <strong>{product.owner}</strong>. {product.description || 'Dibuat dengan bahan-bahan pilihan berkualitas tinggi yang diambil langsung dari petani lokal di kelurahan kita. Tanpa bahan pengawet dan diproses secara higienis untuk menjaga cita rasa asli.'}
+                        {product.deskripsi || 'Dibuat dengan bahan-bahan pilihan berkualitas tinggi yang diambil langsung dari pengrajin lokal di kelurahan kita. Tanpa bahan pengawet dan diproses secara higienis untuk menjaga mutu terbaik.'}
                      </p>
                      <div className="grid grid-cols-2 gap-4 pt-4">
                         <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-gray-100">
-                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Bahan Utama</p>
-                           <p className="text-xs font-bold text-gray-700">{product.ingredients || 'Premium & Organik'}</p>
+                           <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Stok Tersedia</p>
+                           <p className="text-xs font-bold text-gray-700">{product.stok} Unit</p>
                         </div>
                         <div className="p-4 bg-[#F8FAFC] rounded-2xl border border-gray-100">
                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Masa Simpan</p>

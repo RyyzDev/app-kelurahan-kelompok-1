@@ -3,8 +3,7 @@ import { X, ShoppingBag, Plus, Minus, Trash2, CreditCard } from 'lucide-react';
 
 const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }) => {
   const totalPrice = cartItems.reduce((acc, item) => {
-    const priceNum = parseInt(item.price.replace(/[^\d]/g, ''));
-    return acc + (priceNum * item.quantity);
+    return acc + (Number(item.harga) * item.quantity);
   }, 0);
 
   const formatPrice = (price) => {
@@ -54,12 +53,18 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveIte
                {cartItems.length > 0 ? (
                  cartItems.map((item) => (
                    <div key={item.id} className="flex items-center space-x-4 bg-gray-50 p-4 rounded-3xl border border-gray-100 group">
-                      <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-sm">
-                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0 shadow-sm bg-white">
+                         {item.foto_url ? (
+                           <img src={item.foto_url} alt={item.nama_produk} className="w-full h-full object-cover" />
+                         ) : (
+                           <div className="w-full h-full flex items-center justify-center text-gray-200">
+                             <ShoppingBag size={32} />
+                           </div>
+                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                         <h4 className="font-extrabold text-gray-800 text-sm truncate">{item.name}</h4>
-                         <p className="text-[#0047AB] font-black text-sm mt-0.5">{item.price}</p>
+                         <h4 className="font-extrabold text-gray-800 text-sm truncate">{item.nama_produk}</h4>
+                         <p className="text-[#0047AB] font-black text-sm mt-0.5">{formatPrice(item.harga)}</p>
                          
                          <div className="flex items-center space-x-3 mt-3">
                             <div className="flex items-center bg-white border border-gray-200 rounded-xl px-2 py-1">

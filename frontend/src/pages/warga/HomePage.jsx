@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { 
@@ -11,21 +11,43 @@ import {
   LayoutGrid, 
   Bell, 
   User as UserIcon,
-  Sparkles
+  Sparkles,
+  Calendar,
+  MapPin,
+  ChevronRight,
+  Info,
+  Clock,
+  CheckCircle2,
+  CalendarDays
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import ChatDrawer from '../../components/chatbot/ChatDrawer';
 import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
 import BansosDrawer from '../../components/bansos/BansosDrawer';
 import VaksinasiDrawer from '../../components/vaksinasi/VaksinasiDrawer';
+import { getHomeData } from '../../services/homeService';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
+  
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
   const [isBansosOpen, setIsBansosOpen] = useState(false);
   const [isVaksinasiOpen, setIsVaksinasiOpen] = useState(false);
+
+  const [homeData, setHomeData] = useState({ events: [], bansos: [] });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getHomeData();
+      setHomeData(data);
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []);
 
   const services = [
     { 
@@ -38,29 +60,22 @@ const HomePage = () => {
     {
       name: 'Vaksinasi',
       icon: Syringe,
-      color: 'bg-[#E6F6F4}',
-      iconColor: 'text-[#34A853]',
+      color: 'bg-[#D1FAE5]',
+      iconColor: 'text-[#059669]',
       onClick: () => setIsVaksinasiOpen(true)
     },
     { 
       name: 'Bansos Digital', 
       icon: FileText, 
-      color: 'bg-[#E6F6F4]', 
-      iconColor: 'text-[#34A853]', 
+      color: 'bg-[#FEF3C7]', 
+      iconColor: 'text-[#D97706]', 
       onClick: () => setIsBansosOpen(true)
-    },
-    { 
-      name: 'Saran & Aspirasi', 
-      icon: MessageSquare, 
-      color: 'bg-[#E6F0F9]', 
-      iconColor: 'text-[#0047AB]', 
-      onClick: () => navigate('/warga/aspirasi')
     },
     { 
       name: 'UMKM Corner', 
       icon: ShoppingBag, 
-      color: 'bg-[#F9F1E6]', 
-      iconColor: 'text-[#D97706]', 
+      color: 'bg-[#DBEAFE]', 
+      iconColor: 'text-[#0047AB]', 
       onClick: () => navigate('/warga/umkm')
     },
   ];
@@ -100,8 +115,8 @@ const HomePage = () => {
               <div className="bg-[#FBBC05] w-3 h-3 rounded-sm"></div>
               <div className="bg-[#EA4335] w-3 h-3 rounded-sm"></div>
            </div>
-           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase text-center">SI-<span className="text-[#0047AB]">GERCAP</span></h1>
-           <h3 className="text-[11px] text-gray-330 font-small leading-relaxed">Sistem Digital Kelurahan Cepat & Terintegrasi</h3>
+           <h1 className="text-sm font-black text-gray-800 tracking-tighter mt-1 uppercase text-center font-sans">SI-<span className="text-[#0047AB]">GERCAP</span></h1>
+           <h3 className="text-[9px] font-black text-[#0047AB]/50 uppercase tracking-[0.3em] leading-relaxed">Kelurahan Digital</h3>
         </div>
 
         <div className="absolute bottom-0 left-0 w-full opacity-20 pointer-events-none flex items-end">
@@ -118,10 +133,13 @@ const HomePage = () => {
           <div className="bg-[#FFF7ED] w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
              <span className="text-2xl">👋</span>
           </div>
-          <div>
-            <h2 className="text-lg font-extrabold text-gray-800 leading-tight truncate">Halo, {user?.name}</h2>
-            <p className="text-[11px] text-gray-400 font-medium leading-relaxed italic">Punya keperluan apa hari ini?</p>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-black text-gray-800 leading-tight truncate">Halo, {user?.nama_lengkap?.split(' ')[0]}</h2>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Sudah tersinkronisasi</p>
           </div>
+          <button onClick={() => setIsChatOpen(true)} className="bg-blue-50 p-3 rounded-2xl text-[#0047AB] active:scale-90 transition-all">
+             <Sparkles size={20} strokeWidth={2.5} />
+          </button>
         </div>
       </div>
 
@@ -129,11 +147,11 @@ const HomePage = () => {
       <div className="px-5 mt-12 grid grid-cols-4 gap-4 max-w-lg mx-auto">
         {services.map((service, idx) => (
           <button key={idx} onClick={service.onClick} className="flex flex-col items-center group text-center">
-            <div className={`${service.color} ${service.iconColor} w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-md group-hover:scale-110 transition-all duration-300`}>
-               <service.icon size={24} strokeWidth={2.5} />
+            <div className={`${service.color} ${service.iconColor} w-14 h-14 rounded-3xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-all duration-300 transform group-hover:rotate-6`}>
+               <service.icon size={22} strokeWidth={3} />
             </div>
-            <span className="text-[9px] font-extrabold text-gray-500 leading-tight">
-              {service.name}
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-tight leading-tight">
+              {service.name.split(' ')[0]} <br/> {service.name.split(' ')[1]}
             </span>
           </button>
         ))}
@@ -141,10 +159,107 @@ const HomePage = () => {
 
       {/* Banner */}
       <div className="px-5 mt-12 max-w-lg mx-auto">
-        <div className="bg-[#0047AB] rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl shadow-blue-200">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-           <h4 className="text-2xl font-black leading-tight max-w-[200px] relative z-10">Pelayanan Digital Lebih Mudah</h4>
+        <div className="bg-gradient-to-br from-[#0047AB] to-[#003580] rounded-[32px] p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-900/20 group">
+           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-110 transition-transform duration-1000"></div>
+           <div className="relative z-10">
+              <span className="text-[9px] font-black uppercase tracking-[0.3em] opacity-60">Info Pelayanan</span>
+              <h4 className="text-2xl font-black leading-tight max-w-[200px] mt-2">Pelayanan Digital Lebih Mudah</h4>
+              <button onClick={() => setIsPersuratanOpen(true)} className="mt-6 px-6 py-3 bg-white text-[#0047AB] rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-black/10 active:scale-95 transition-all">Mulai Sekarang</button>
+           </div>
+           <div className="absolute -bottom-6 -right-6 opacity-20">
+              <FileEdit size={120} strokeWidth={1} />
+           </div>
         </div>
+      </div>
+
+      {/* NEW: Event Kelurahan Slider */}
+      <div className="mt-12 space-y-6">
+        <div className="px-6 flex items-center justify-between max-w-lg mx-auto">
+           <h3 className="text-lg font-black text-gray-900 tracking-tight">Event Kelurahan</h3>
+           <button className="text-[10px] font-black text-[#0047AB] uppercase tracking-widest">Lihat Semua</button>
+        </div>
+        
+        <div className="flex overflow-x-auto px-6 space-x-5 no-scrollbar pb-4 max-w-lg mx-auto scroll-smooth">
+          {isLoading ? (
+            [1, 2].map(i => (
+              <div key={i} className="w-72 h-48 bg-white rounded-[32px] shrink-0 animate-pulse border border-gray-100 shadow-sm" />
+            ))
+          ) : homeData.events.map((event) => (
+            <div key={event.id} className="w-72 bg-white rounded-[32px] border border-gray-100 overflow-hidden shrink-0 shadow-xl shadow-blue-900/5 group">
+               <div className="h-32 relative overflow-hidden">
+                  <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 left-4 flex items-center space-x-2 text-white">
+                     <MapPin size={10} strokeWidth={3} />
+                     <span className="text-[9px] font-black uppercase tracking-widest">{event.location}</span>
+                  </div>
+               </div>
+               <div className="p-4 flex items-center justify-between">
+                  <div className="min-w-0">
+                     <h4 className="font-black text-gray-800 text-sm truncate">{event.title}</h4>
+                     <div className="flex items-center space-x-2 text-gray-400 mt-1">
+                        <Calendar size={10} strokeWidth={3} />
+                        <span className="text-[9px] font-bold">{event.date}</span>
+                     </div>
+                  </div>
+                  <div className="bg-blue-50 p-2 rounded-xl text-[#0047AB]">
+                     <ChevronRight size={16} strokeWidth={3} />
+                  </div>
+               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* NEW: Penyaluran Bansos Column */}
+      <div className="mt-12 px-6 space-y-6 max-w-lg mx-auto">
+        <div className="flex items-center justify-between">
+           <h3 className="text-lg font-black text-gray-900 tracking-tight">Penyaluran Bansos</h3>
+           <div className="bg-green-50 px-3 py-1 rounded-full flex items-center space-x-1.5">
+              <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
+              <span className="text-[8px] font-black text-green-600 uppercase tracking-widest">Live Update</span>
+           </div>
+        </div>
+
+        <div className="space-y-4">
+           {isLoading ? (
+             [1, 2].map(i => (
+               <div key={i} className="w-full h-24 bg-white rounded-[32px] animate-pulse border border-gray-100 shadow-sm" />
+             ))
+           ) : homeData.bansos.map((dist) => (
+             <div key={dist.id} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex items-center space-x-5 group hover:shadow-2xl transition-all duration-500">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
+                  dist.status === 'Sedang Berlangsung' ? 'bg-orange-50 text-orange-600' : 
+                  dist.status === 'Terjadwal' ? 'bg-blue-50 text-[#0047AB]' : 'bg-green-50 text-green-600'
+                }`}>
+                   <Clock size={24} strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                   <div className="flex items-center justify-between mb-1">
+                      <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                        dist.status === 'Sedang Berlangsung' ? 'bg-orange-100 text-orange-700' : 
+                        dist.status === 'Terjadwal' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                      }`}>
+                         {dist.status}
+                      </span>
+                      <p className="text-[9px] font-bold text-gray-300">{dist.date}</p>
+                   </div>
+                   <h4 className="font-black text-gray-800 text-sm truncate">{dist.title}</h4>
+                   <div className="flex items-center space-x-2 text-gray-400 mt-1">
+                      <UserIcon size={10} strokeWidth={3} />
+                      <span className="text-[9px] font-black uppercase tracking-tighter">Target: {dist.total_warga}</span>
+                   </div>
+                </div>
+                <div className="text-gray-200 group-hover:text-[#0047AB] transition-colors">
+                   <ChevronRight size={18} strokeWidth={3} />
+                </div>
+             </div>
+           ))}
+        </div>
+        
+        <button className="w-full py-4 bg-gray-50 border border-gray-100 rounded-[28px] text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-[#0047AB] transition-all active:scale-95">
+           Lihat Selengkapnya
+        </button>
       </div>
 
       {/* Bottom Navigation */}
@@ -204,6 +319,8 @@ const HomePage = () => {
         @keyframes fly-across { 0% { left: -10%; transform: scaleX(1); } 45% { left: 110%; transform: scaleX(1); } 50% { left: 110%; transform: scaleX(-1); } 95% { left: -10%; transform: scaleX(-1); } 100% { left: -10%; transform: scaleX(1); } }
         @keyframes flap-top { from { transform: rotate(0deg); } to { transform: rotate(-60deg); } }
         @keyframes flap-bottom { from { transform: rotate(0deg); } to { transform: rotate(60deg); } }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
     </div>
   );

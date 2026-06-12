@@ -12,11 +12,11 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 → redirect ke login
+// Handle 401 → redirect ke login jika bukan di halaman login
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

@@ -2,40 +2,46 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { register as registerAction } from '../store/authSlice';
 import toast from 'react-hot-toast';
 import { User, CreditCard, Calendar, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 
 const registerSchema = z.object({
-  nama: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
+  nama_lengkap: z.string().min(3, 'Nama lengkap minimal 3 karakter'),
   nik: z.string().length(16, 'NIK harus 16 digit'),
-  tgl_lahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
+  tanggal_lahir: z.string().min(1, 'Tanggal lahir wajib diisi'),
   email: z.string().email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
-  confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+  confirm_password: z.string()
+}).refine((data) => data.password === data.confirm_password, {
   message: "Password tidak cocok",
-  path: ["confirmPassword"],
+  path: ["confirm_password"],
 });
 
 const RegisterPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
   });
 
   const onSubmit = async (data) => {
-    // Simulasi registrasi
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log('Register data:', data);
-    toast.success('Registrasi berhasil! Silakan login.');
-    navigate('/login');
+    const resultAction = await dispatch(registerAction(data));
+    if (registerAction.fulfilled.match(resultAction)) {
+      toast.success('Registrasi berhasil! Silakan login.');
+      navigate('/login');
+    } else {
+      toast.error(resultAction.payload || 'Registrasi gagal');
+    }
   };
 
   return (
@@ -99,11 +105,11 @@ const RegisterPage = () => {
               <User size={20} className="text-[#0047AB]" strokeWidth={2.5} />
             </div>
             <input
-              {...register('nama')}
+              {...register('nama_lengkap')}
               className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#0047AB]/20 focus:border-[#0047AB] outline-none transition-all text-gray-700 placeholder-gray-400 font-medium text-sm"
               placeholder="Nama Lengkap (Sesuai KTP)"
             />
-            {errors.nama && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.nama.message}</p>}
+            {errors.nama_lengkap && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.nama_lengkap.message}</p>}
           </div>
 
           {/* NIK */}
@@ -126,11 +132,11 @@ const RegisterPage = () => {
               <Calendar size={20} className="text-[#0047AB]" strokeWidth={2.5} />
             </div>
             <input
-              {...register('tgl_lahir')}
+              {...register('tanggal_lahir')}
               type="date"
               className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#0047AB]/20 focus:border-[#0047AB] outline-none transition-all text-gray-700 placeholder-gray-400 font-medium text-sm"
             />
-            {errors.tgl_lahir && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.tgl_lahir.message}</p>}
+            {errors.tanggal_lahir && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.tanggal_lahir.message}</p>}
           </div>
 
           {/* Email */}
@@ -174,22 +180,22 @@ const RegisterPage = () => {
               <Lock size={20} className="text-[#0047AB]" strokeWidth={2.5} />
             </div>
             <input
-              {...register('confirmPassword')}
+              {...register('confirm_password')}
               type={showPassword ? 'text' : 'password'}
               className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#0047AB]/20 focus:border-[#0047AB] outline-none transition-all text-gray-700 placeholder-gray-400 font-medium text-sm"
               placeholder="Konfirmasi Kata Sandi"
             />
-            {errors.confirmPassword && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.confirmPassword.message}</p>}
+            {errors.confirm_password && <p className="mt-1 ml-2 text-[11px] text-red-500 font-bold">{errors.confirm_password.message}</p>}
           </div>
 
           {/* Register Button */}
           <div className="pt-4">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={loading}
               className="w-full py-4 bg-[#0047AB] text-white font-extrabold rounded-2xl hover:bg-[#003580] hover:shadow-lg hover:shadow-blue-200 disabled:bg-gray-300 transition-all shadow-md shadow-blue-100 text-base uppercase tracking-widest"
             >
-              {isSubmitting ? 'Memproses...' : 'Daftar Sekarang'}
+              {loading ? 'Memproses...' : 'Daftar Sekarang'}
             </button>
           </div>
         </form>

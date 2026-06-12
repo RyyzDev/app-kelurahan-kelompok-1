@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -8,62 +8,38 @@ import {
   Plus, 
   ArrowRight,
   TrendingUp,
-  CheckCircle2
+  CheckCircle2,
+  Loader2,
+  Search
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductDetailDrawer from '../../components/umkm/ProductDetailDrawer';
 import CartSidebar from '../../components/umkm/CartSidebar';
+import { getPublicProduk } from '../../services/umkmService';
 import toast from 'react-hot-toast';
-
-const mockUMKM = [
-  {
-    id: 1,
-    name: 'Kripik Tempe Mak Mur',
-    category: 'Camilan',
-    price: 'Rp 15.000',
-    image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=400&q=80',
-    owner: 'Ibu Murni',
-    description: 'Kripik tempe renyah dengan bumbu rempah rahasia warisan keluarga.',
-    ingredients: 'Tempe Kedelai, Rempah, Garam'
-  },
-  {
-    id: 2,
-    name: 'Batik Tulis Sejahtera',
-    category: 'Fashion',
-    price: 'Rp 250.000',
-    image: 'https://images.unsplash.com/photo-1582733734033-66f81a1796be?auto=format&fit=crop&w=400&q=80',
-    owner: 'Bpk. Ahmad',
-    description: 'Batik tulis asli buatan tangan perajin kelurahan.',
-    ingredients: 'Katun Primisima, Pewarna Alami'
-  },
-  {
-    id: 3,
-    name: 'Sambal Uleg Juara',
-    category: 'Bumbu Dapur',
-    price: 'Rp 25.000',
-    image: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=400&q=80',
-    owner: 'Ibu Siti',
-    description: 'Sambal terasi uleg segar dengan cita rasa pedas nampol.',
-    ingredients: 'Cabai Rawit, Terasi, Bawang'
-  },
-  {
-    id: 4,
-    name: 'Anyaman Bambu Kreatif',
-    category: 'Kerajinan',
-    price: 'Rp 45.000',
-    image: 'https://images.unsplash.com/photo-1611486212330-972142704ece?auto=format&fit=crop&w=400&q=80',
-    owner: 'Bpk. Jaka',
-    description: 'Wadah anyaman bambu serbaguna yang kuat dan estetik.',
-    ingredients: 'Bambu Apus Pilihan'
-  }
-];
 
 const UMKMPage = () => {
   const navigate = useNavigate();
+  const [produkList, setProdukList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchProduk = async () => {
+      try {
+        const response = await getPublicProduk();
+        setProdukList(response.data);
+      } catch (err) {
+        toast.error('Gagal memuat katalog produk');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProduk();
+  }, []);
 
   const isProductInCart = (productId) => cart.some(item => item.id === productId);
 
@@ -74,7 +50,7 @@ const UMKMPage = () => {
       return;
     }
     setCart(prev => [...prev, { ...product, quantity: 1 }]);
-    toast.success(`${product.name} ditambah ke keranjang`, {
+    toast.success(`${product.nama_produk} ditambah ke keranjang`, {
       icon: '🛒',
       style: { borderRadius: '20px', fontWeight: 'bold' }
     });
@@ -104,7 +80,10 @@ const UMKMPage = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-           <button className="p-3 text-[#0047AB] hover:bg-blue-50 rounded-2xl transition-all font-black uppercase tracking-widest text-[10px] flex items-center space-x-2">
+           <button 
+             onClick={() => navigate('/warga/umkm/toko')}
+             className="p-3 text-[#0047AB] hover:bg-blue-50 rounded-2xl transition-all font-black uppercase tracking-widest text-[10px] flex items-center space-x-2"
+           >
               <TrendingUp size={18} strokeWidth={3} />
               <span className="hidden md:inline">Toko Saya</span>
            </button>
@@ -134,51 +113,69 @@ const UMKMPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {mockUMKM.map((item) => {
-            const inCart = isProductInCart(item.id);
-            return (
-              <motion.div 
-                key={item.id} 
-                whileHover={{ y: -8 }}
-                onClick={() => { setSelectedProduct(item); setIsDrawerOpen(true); }}
-                className="bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col cursor-pointer"
-              >
-                <div className="h-56 overflow-hidden relative">
-                  <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
-                  <div className="absolute top-4 left-4">
-                     <span className="text-[9px] font-black uppercase tracking-widest text-white bg-black/40 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md border border-white/20">{item.category}</span>
-                  </div>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="font-extrabold text-gray-800 text-lg leading-tight mb-2 group-hover:text-[#0047AB] transition-colors">{item.name}</h3>
-                  <p className="text-xl font-black text-[#0047AB] mb-4">{item.price}</p>
-                  
-                  <button 
-                    onClick={(e) => handleAddToCart(item, e)}
-                    className={`mt-auto w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center space-x-2 transition-all shadow-sm active:scale-95 group/btn
-                      ${inCart 
-                        ? 'bg-[#34A853] text-white' 
-                        : 'bg-gray-50 text-[#0047AB] border border-blue-50 hover:bg-[#0047AB] hover:text-white'}
-                    `}
-                  >
-                    {inCart ? (
-                      <>
-                        <CheckCircle2 size={16} strokeWidth={3} />
-                        <span>Di Keranjang</span>
-                      </>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+             <Loader2 className="animate-spin text-[#0047AB]" size={32} />
+             <p className="text-gray-400 font-bold text-sm">Menyelaraskan Katalog...</p>
+          </div>
+        ) : produkList.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-[48px] border-2 border-dashed border-gray-100">
+             <ShoppingBag className="mx-auto text-gray-200 mb-4" size={64} />
+             <p className="text-gray-400 font-bold italic">Belum ada produk yang tersedia saat ini.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {produkList.map((item) => {
+              const inCart = isProductInCart(item.id);
+              return (
+                <motion.div 
+                  key={item.id} 
+                  whileHover={{ y: -8 }}
+                  onClick={() => { setSelectedProduct(item); setIsDrawerOpen(true); }}
+                  className="bg-white rounded-[32px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col cursor-pointer"
+                >
+                  <div className="h-56 overflow-hidden relative">
+                    {item.foto_url ? (
+                      <img src={item.foto_url} alt={item.nama_produk} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
                     ) : (
-                      <>
-                        <Plus size={16} strokeWidth={3} className="group-hover/btn:rotate-90 transition-transform" />
-                        <span>Keranjang</span>
-                      </>
+                      <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-200">
+                         <ShoppingBag size={48} />
+                      </div>
                     )}
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                    <div className="absolute top-4 left-4">
+                       <span className="text-[9px] font-black uppercase tracking-widest text-white bg-black/40 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md border border-white/20">{item.kategori || 'Produk'}</span>
+                    </div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="font-extrabold text-gray-800 text-lg leading-tight mb-2 group-hover:text-[#0047AB] transition-colors">{item.nama_produk}</h3>
+                    <p className="text-xl font-black text-[#0047AB] mb-4">Rp {Number(item.harga).toLocaleString('id-ID')}</p>
+                    
+                    <button 
+                      onClick={(e) => handleAddToCart(item, e)}
+                      className={`mt-auto w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center space-x-2 transition-all shadow-sm active:scale-95 group/btn
+                        ${inCart 
+                          ? 'bg-[#34A853] text-white' 
+                          : 'bg-gray-50 text-[#0047AB] border border-blue-50 hover:bg-[#0047AB] hover:text-white'}
+                      `}
+                    >
+                      {inCart ? (
+                        <>
+                          <CheckCircle2 size={16} strokeWidth={3} />
+                          <span>Di Keranjang</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={16} strokeWidth={3} className="group-hover/btn:rotate-90 transition-transform" />
+                          <span>Keranjang</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </main>
 
       <AnimatePresence>

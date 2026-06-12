@@ -20,7 +20,7 @@ const VaksinasiDrawer = ({ isOpen, onClose }) => {
       icon: History,
       color: 'bg-blue-50',
       iconColor: 'text-[#0047AB]',
-      path: '/warga/vaksinasi/status'
+      path: '/warga/vaksinasi/riwayat'
     }
   ];
 

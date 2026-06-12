@@ -1,34 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Smartphone, Stamp, CheckCircle2, ChevronRight, Clock, FileCheck } from 'lucide-react';
+import { ArrowLeft, FileText, Smartphone, Stamp, CheckCircle2, ChevronRight, Clock, FileCheck, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { getJenisSurat, createPermohonanSurat } from '../../services/suratService';
 
 const BuatSuratPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [suratTypes, setSuratTypes] = useState([]);
+  const [isLoadingTypes, setIsLoadingTypes] = useState(true);
+  const [showAll, setShowAll] = useState(false);
   const [formData, setFormData] = useState({
-    keperluan: '',
-    format: '',
-    keterangan: '',
-    selectedSlot: null
+    jenis_surat_id: '',
+    format_surat: '',
+    alasan_permohonan: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refNumber, setRefNumber] = useState('');
 
-  const suratTypes = [
-    'Surat Pengantar RT/RW',
-    'Surat Keterangan Domisili',
-    'Surat Keterangan Belum Menikah',
-    'Surat Keterangan Kurang Mampu',
-    'Surat Keterangan Kelahiran'
-  ];
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const response = await getJenisSurat();
+        setSuratTypes(response.data);
+      } catch (err) {
+        toast.error('Gagal memuat jenis surat');
+      } finally {
+        setIsLoadingTypes(false);
+      }
+    };
+    fetchTypes();
+  }, []);
 
   const handleNext = () => {
-    if (step === 1 && (!formData.keperluan || !formData.format)) {
-      toast.error('Pilih keperluan surat dan format terlebih dahulu');
+    if (step === 1 && (!formData.jenis_surat_id || !formData.format_surat)) {
+      toast.error('Pilih jenis surat dan format terlebih dahulu');
       return;
     }
-    if (step === 2 && !formData.keterangan) {
-      toast.error('Lengkapi keterangan permohonan');
+    if (step === 2 && (!formData.alasan_permohonan || formData.alasan_permohonan.length < 10)) {
+      toast.error('Alasan permohonan minimal 10 karakter');
       return;
     }
     setStep(step + 1);
@@ -36,14 +46,25 @@ const BuatSuratPage = () => {
 
   const handleSubmitPermohonan = async () => {
     setIsSubmitting(true);
-    toast.loading('Mengirim permohonan...', { id: 'submit' });
+    const toastId = toast.loading('Mengirim permohonan...');
     
-    // Simulasi API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success('Permohonan berhasil terkirim!', { id: 'submit' });
+    try {
+      const response = await createPermohonanSurat(formData);
+      
+      if (response.offline) {
+        setRefNumber('OFFLINE-' + Math.random().toString(36).substring(2, 7).toUpperCase());
+        toast.success('Disimpan offline! Akan dikirim otomatis saat online.', { id: toastId });
+      } else {
+        setRefNumber(response.data.id.substring(0, 8).toUpperCase());
+        toast.success('Permohonan berhasil terkirim!', { id: toastId });
+      }
+      
       setStep(4);
-    }, 2000);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengirim permohonan', { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -53,6 +74,14 @@ const BuatSuratPage = () => {
       setStep(step - 1);
     }
   };
+
+  const goToStep = (targetStep) => {
+    if (targetStep < step) {
+      setStep(targetStep);
+    }
+  };
+
+  const selectedSuratName = suratTypes.find(s => s.id === formData.jenis_surat_id)?.nama_layanan;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-12 font-sans">
@@ -69,7 +98,11 @@ const BuatSuratPage = () => {
         {step < 4 && (
           <div className="flex justify-between items-center mb-10 px-4">
             {[1, 2, 3].map((num) => (
-              <div key={num} className="flex flex-col items-center relative flex-1">
+              <div 
+                key={num} 
+                className={`flex flex-col items-center relative flex-1 ${num < step ? 'cursor-pointer' : ''}`}
+                onClick={() => goToStep(num)}
+              >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm z-10 transition-all duration-500 ${step >= num ? 'bg-[#0047AB] text-white shadow-lg shadow-blue-200' : 'bg-gray-100 text-gray-400'}`}>
                   {step > num ? <CheckCircle2 size={18} /> : num}
                 </div>
@@ -88,28 +121,61 @@ const BuatSuratPage = () => {
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div>
                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pilih Jenis Surat</label>
-               <div className="grid grid-cols-1 gap-3">
-                 {suratTypes.map((type) => (
-                   <button 
-                     key={type}
-                     onClick={() => setFormData({...formData, keperluan: type})}
-                     className={`p-5 rounded-2xl border-2 text-left transition-all flex items-center justify-between group ${formData.keperluan === type ? 'border-[#0047AB] bg-blue-50/50 shadow-md' : 'border-gray-100 bg-white hover:border-blue-200'}`}
-                   >
-                     <span className={`font-bold ${formData.keperluan === type ? 'text-[#0047AB]' : 'text-gray-600'}`}>{type}</span>
-                     <ChevronRight size={18} className={formData.keperluan === type ? 'text-[#0047AB]' : 'text-gray-300'} />
-                   </button>
-                 ))}
-               </div>
+               {isLoadingTypes ? (
+                 <div className="flex justify-center p-8">
+                   <Loader2 className="animate-spin text-[#0047AB]" />
+                 </div>
+               ) : (
+                 <div className="space-y-3">
+                   <div className="grid grid-cols-1 gap-3 relative">
+                     {suratTypes.slice(0, showAll ? suratTypes.length : 5).map((surat, index) => {
+                       const isBlurred = !showAll && index === 4;
+                       
+                       return (
+                         <button 
+                           key={surat.id}
+                           disabled={isBlurred}
+                           onClick={() => setFormData({...formData, jenis_surat_id: surat.id})}
+                           className={`p-5 rounded-2xl border-2 text-left transition-all flex items-center justify-between group relative overflow-hidden
+                             ${formData.jenis_surat_id === surat.id ? 'border-[#0047AB] bg-blue-50/50 shadow-md' : 'border-gray-100 bg-white hover:border-blue-200'}
+                             ${isBlurred ? 'opacity-40 blur-[2px] cursor-default' : ''}
+                           `}
+                         >
+                           <div>
+                             <p className={`font-bold ${formData.jenis_surat_id === surat.id ? 'text-[#0047AB]' : 'text-gray-600'}`}>{surat.nama_layanan}</p>
+                             <p className="text-[10px] text-gray-400 font-bold">{surat.estimasi_pengerjaan} Hari Kerja</p>
+                           </div>
+                           {!isBlurred && <ChevronRight size={18} className={formData.jenis_surat_id === surat.id ? 'text-[#0047AB]' : 'text-gray-300'} />}
+                           
+                           {isBlurred && (
+                             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/80" />
+                           )}
+                         </button>
+                       );
+                     })}
+                   </div>
+
+                   {suratTypes.length > 4 && (
+                     <button 
+                       onClick={() => setShowAll(!showAll)}
+                       className="w-full py-3 flex items-center justify-center space-x-2 text-[#0047AB] font-black uppercase tracking-widest text-[10px] bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95"
+                     >
+                       <span>{showAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Selengkapnya'}</span>
+                       {showAll ? <ChevronUp size={16} strokeWidth={3} /> : <ChevronDown size={16} strokeWidth={3} />}
+                     </button>
+                   )}
+                 </div>
+               )}
             </div>
 
             <div>
                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pilih Format Surat</label>
                <div className="grid grid-cols-2 gap-4">
                  <button 
-                   onClick={() => setFormData({...formData, format: 'Digital'})}
-                   className={`p-6 rounded-[32px] border-2 flex flex-col items-center text-center transition-all ${formData.format === 'Digital' ? 'border-[#0047AB] bg-blue-50 shadow-lg' : 'border-gray-100 bg-white hover:border-blue-100'}`}
+                   onClick={() => setFormData({...formData, format_surat: 'digital'})}
+                   className={`p-6 rounded-[32px] border-2 flex flex-col items-center text-center transition-all ${formData.format_surat === 'digital' ? 'border-[#34A853] bg-green-50 shadow-lg' : 'border-gray-100 bg-white hover:border-blue-100'}`}
                  >
-                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${formData.format === 'Digital' ? 'bg-[#0047AB] text-white' : 'bg-blue-50 text-[#0047AB]'}`}>
+                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${formData.format_surat === 'digital' ? 'bg-[#34A853] text-white' : 'bg-blue-50 text-[#0047AB]'}`}>
                       <Smartphone size={28} strokeWidth={2.5} />
                    </div>
                    <h4 className="font-black text-xs uppercase tracking-tight mb-1">Kertas Digital</h4>
@@ -117,10 +183,10 @@ const BuatSuratPage = () => {
                  </button>
 
                  <button 
-                   onClick={() => setFormData({...formData, format: 'Cap Basah'})}
-                   className={`p-6 rounded-[32px] border-2 flex flex-col items-center text-center transition-all ${formData.format === 'Cap Basah' ? 'border-[#EF4444] bg-red-50 shadow-lg' : 'border-gray-100 bg-white hover:border-red-100'}`}
+                   onClick={() => setFormData({...formData, format_surat: 'cap_basah'})}
+                   className={`p-6 rounded-[32px] border-2 flex flex-col items-center text-center transition-all ${formData.format_surat === 'cap_basah' ? 'border-[#EF4444] bg-red-50 shadow-lg' : 'border-gray-100 bg-white hover:border-red-100'}`}
                  >
-                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${formData.format === 'Cap Basah' ? 'bg-[#EF4444] text-white' : 'bg-red-50 text-[#EF4444]'}`}>
+                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${formData.format_surat === 'cap_basah' ? 'bg-[#EF4444] text-white' : 'bg-red-50 text-[#EF4444]'}`}>
                       <Stamp size={28} strokeWidth={2.5} />
                    </div>
                    <h4 className="font-black text-xs uppercase tracking-tight mb-1">Kertas Cap Basah</h4>
@@ -147,7 +213,7 @@ const BuatSuratPage = () => {
                    </div>
                    <div>
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Detail Dokumen</p>
-                      <p className="font-bold text-gray-800">{formData.keperluan}</p>
+                      <p className="font-bold text-gray-800">{selectedSuratName}</p>
                    </div>
                 </div>
 
@@ -156,8 +222,8 @@ const BuatSuratPage = () => {
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Keterangan / Alasan Permohonan</label>
                       <textarea 
                         rows={6}
-                        value={formData.keterangan}
-                        onChange={(e) => setFormData({...formData, keterangan: e.target.value})}
+                        value={formData.alasan_permohonan}
+                        onChange={(e) => setFormData({...formData, alasan_permohonan: e.target.value})}
                         placeholder="Berikan alasan lengkap mengapa Anda memerlukan surat ini..."
                         className="w-full p-5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#0047AB]/20 focus:bg-white outline-none transition-all font-medium text-sm text-gray-700 resize-none"
                       />
@@ -186,11 +252,11 @@ const BuatSuratPage = () => {
                 <div className="space-y-4 text-left">
                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Keperluan</p>
-                      <p className="font-bold text-gray-700">{formData.keperluan}</p>
+                      <p className="font-bold text-gray-700">{selectedSuratName}</p>
                    </div>
                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Format Dokumen</p>
-                      <p className="font-bold text-gray-700">{formData.format === 'Digital' ? '📄 Digital (E-Surat)' : '🖋️ Fisik (Cap Basah)'}</p>
+                      <p className="font-bold text-gray-700">{formData.format_surat === 'digital' ? '📄 Digital (E-Surat)' : '🖋️ Fisik (Cap Basah)'}</p>
                    </div>
                 </div>
              </div>
@@ -216,7 +282,7 @@ const BuatSuratPage = () => {
                       <CheckCircle2 size={40} strokeWidth={3} />
                    </div>
                    <h2 className="text-3xl font-black text-gray-900 tracking-tight">Permohonan Diproses</h2>
-                   <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-2">Nomor Referensi: S-77281</p>
+                   <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-2">Nomor Referensi: {refNumber}</p>
                 </div>
 
                 <div className="mt-10 p-6 bg-blue-50 rounded-3xl border border-blue-100 flex items-start space-x-4">

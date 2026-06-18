@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -10,12 +10,16 @@ import {
   TrendingUp,
   CheckCircle2,
   Loader2,
-  Search
+  Search,
+  User,
+  X as CloseIcon,
+  Tag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductDetailDrawer from '../../components/umkm/ProductDetailDrawer';
 import CartSidebar from '../../components/umkm/CartSidebar';
 import { getPublicProduk } from '../../services/umkmService';
+import paymentService from '../../services/paymentService';
 import toast from 'react-hot-toast';
 
 const UMKMPage = () => {
@@ -66,6 +70,52 @@ const UMKMPage = () => {
     toast.error('Produk dihapus dari keranjang', { style: { borderRadius: '20px', fontWeight: 'bold' } });
   };
 
+  const handleCheckout = async () => {
+    const toastId = toast.loading('Menyiapkan pembayaran...');
+    try {
+      // 1. Map items to match backend expectation
+      const checkoutItems = cart.map(item => ({
+        id: item.id,
+        nama_produk: item.nama_produk,
+        harga: Number(item.harga),
+        kuantitas: item.quantity
+      }));
+
+      // 2. Call backend to get snap token
+      const response = await paymentService.checkout(checkoutItems);
+      const { snap_token } = response.data;
+
+      // 3. Trigger Midtrans Snap Popup
+      window.snap.pay(snap_token, {
+        onSuccess: function(result) {
+          toast.success('Pembayaran Berhasil!', { id: toastId });
+          setCart([]);
+          setIsCartOpen(false);
+          console.log('success', result);
+        },
+        onPending: function(result) {
+          toast('Pembayaran Menunggu...', { id: toastId, icon: '⏳' });
+          console.log('pending', result);
+        },
+        onError: function(result) {
+          toast.error('Pembayaran Gagal!', { id: toastId });
+          console.log('error', result);
+        },
+        onClose: function() {
+          toast.dismiss(toastId);
+          console.log('customer closed the popup without finishing the payment');
+        }
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal memproses checkout', { id: toastId });
+    }
+  };
+
+  const handleSellerClick = (tokoId, e) => {
+    if (e) e.stopPropagation();
+    navigate(`/warga/umkm/toko/${tokoId}`);
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-32 font-sans relative overflow-x-hidden">
       <header className="bg-white border-b border-gray-100 px-6 py-5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
@@ -73,9 +123,14 @@ const UMKMPage = () => {
           <button onClick={() => navigate('/warga')} className="mr-4 p-2 hover:bg-gray-50 rounded-full transition text-gray-500">
             <ArrowLeft size={24} strokeWidth={2.5} />
           </button>
-          <div className="flex items-center space-x-2">
-             <Store className="text-[#0047AB]" size={24} strokeWidth={2.5} />
-             <h1 className="text-xl font-extrabold text-gray-800 tracking-tight">UMKM Corner</h1>
+          <div className="flex items-center space-x-3">
+             <div className="w-10 h-10 bg-gradient-to-tr from-[#0047AB] to-blue-400 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                <ShoppingBag className="text-white" size={20} strokeWidth={2.5} />
+             </div>
+             <div>
+                <h1 className="text-xl font-extrabold text-gray-800 tracking-tight leading-none">UMKM Corner</h1>
+                <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Saint Haven Market</p>
+             </div>
           </div>
         </div>
 
@@ -127,6 +182,7 @@ const UMKMPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {produkList.map((item) => {
               const inCart = isProductInCart(item.id);
+              const storeName = item.toko?.nama_toko || 'Toko Lokal';
               return (
                 <motion.div 
                   key={item.id} 
@@ -147,6 +203,13 @@ const UMKMPage = () => {
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
+                    <div 
+                      onClick={(e) => handleSellerClick(item.toko.id, e)}
+                      className="mb-3 flex items-center space-x-2 text-gray-400 hover:text-[#0047AB] transition-colors cursor-pointer group/seller"
+                    >
+                      <Store size={12} strokeWidth={3} />
+                      <span className="text-[10px] font-black uppercase tracking-tighter">{storeName}</span>
+                    </div>
                     <h3 className="font-extrabold text-gray-800 text-lg leading-tight mb-2 group-hover:text-[#0047AB] transition-colors">{item.nama_produk}</h3>
                     <p className="text-xl font-black text-[#0047AB] mb-4">Rp {Number(item.harga).toLocaleString('id-ID')}</p>
                     
@@ -208,6 +271,7 @@ const UMKMPage = () => {
         onClose={() => setIsDrawerOpen(false)}
         onAddToCart={(p) => handleAddToCart(p)}
         isInCart={selectedProduct ? isProductInCart(selectedProduct.id) : false}
+        onSellerClick={handleSellerClick}
       />
 
       <CartSidebar 
@@ -216,6 +280,7 @@ const UMKMPage = () => {
         cartItems={cart}
         onUpdateQuantity={updateQuantity}
         onRemoveItem={removeItem}
+        onCheckout={handleCheckout}
       />
     </div>
   );

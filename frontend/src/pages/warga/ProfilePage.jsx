@@ -17,7 +17,6 @@ import {
   Sparkles,
   Phone,
   MapPin,
-  Loader2,
   X,
   Lock,
   Eye,
@@ -29,6 +28,50 @@ import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
 import BansosDrawer from '../../components/bansos/BansosDrawer';
 import { getProfile, updateProfile, changePassword } from '../../services/userService';
 import toast from 'react-hot-toast';
+
+const ProfileSkeleton = () => (
+  <div className="animate-pulse space-y-8">
+    {/* User Card Skeleton */}
+    <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-xl shadow-blue-900/5 text-center relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-2 bg-gray-100"></div>
+      <div className="w-24 h-24 bg-gray-100 rounded-[32px] mx-auto mb-6"></div>
+      <div className="h-8 bg-gray-100 rounded-lg w-3/4 mx-auto mb-3"></div>
+      <div className="h-6 bg-gray-50 rounded-full w-1/2 mx-auto"></div>
+    </div>
+
+    {/* Identity Info Skeleton */}
+    <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden p-2">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center space-x-4 p-5 border-t first:border-t-0 border-gray-50">
+          <div className="bg-gray-100 p-3 rounded-2xl w-11 h-11"></div>
+          <div className="flex-1 space-y-2">
+            <div className="h-2.5 bg-gray-100 rounded w-1/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Menu List Skeleton */}
+    <div className="space-y-4">
+      {[1, 2].map((i) => (
+        <div key={i} className="w-full bg-white p-6 rounded-[32px] border border-gray-100 flex items-center justify-between">
+          <div className="flex items-center space-x-5">
+            <div className="bg-gray-100 p-3.5 rounded-2xl w-12 h-12"></div>
+            <div className="space-y-2 text-left">
+              <div className="h-4 bg-gray-200 rounded w-32"></div>
+              <div className="h-3 bg-gray-100 rounded w-48"></div>
+            </div>
+          </div>
+          <div className="w-5 h-5 bg-gray-100 rounded-full"></div>
+        </div>
+      ))}
+    </div>
+    
+    {/* Logout Button Skeleton */}
+    <div className="h-16 bg-gray-100 rounded-[32px] mt-10"></div>
+  </div>
+);
 
 const ProfilePage = () => {
   const { user: authUser } = useSelector((state) => state.auth);
@@ -111,15 +154,6 @@ const ProfilePage = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-         <Loader2 className="animate-spin text-[#0047AB]" size={40} />
-         <p className="mt-4 text-[10px] font-black text-gray-300 uppercase tracking-[0.4em]">Menyelaraskan Data</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-32 font-sans">
       <header className="bg-white border-b border-gray-100 px-6 py-6 flex items-center sticky top-0 z-10 shadow-sm justify-center">
@@ -127,169 +161,175 @@ const ProfilePage = () => {
       </header>
 
       <main className="p-6 max-w-lg mx-auto space-y-8">
-        {/* User Card */}
-        <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-xl shadow-blue-900/5 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#0047AB] to-blue-400"></div>
-          
-          <div className="w-24 h-24 bg-blue-50 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-inner border-4 border-white">
-             <UserIcon size={48} className="text-[#0047AB]" strokeWidth={2.5} />
-          </div>
-          
-          <h2 className="text-2xl font-black text-gray-900 tracking-tight">{profile?.nama_lengkap}</h2>
-          <p className="text-[10px] font-black text-[#34A853] mt-1.5 uppercase tracking-[0.2em] bg-green-50 px-4 py-1.5 rounded-full inline-block">Warga Terverifikasi</p>
-        </div>
-
-        {isEditMode ? (
-          <form onSubmit={handleUpdateProfile} className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-             <div className="flex items-center justify-between mb-4">
-                <h3 className="font-black text-gray-800 uppercase tracking-widest text-[11px]">Edit Data Diri</h3>
-                <button type="button" onClick={() => setIsEditMode(false)} className="text-gray-400"><X size={20}/></button>
-             </div>
-             
-             <div className="space-y-4">
-                <div>
-                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Nama Lengkap</label>
-                   <input 
-                     required
-                     value={formData.nama_lengkap}
-                     onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
-                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
-                   />
-                </div>
-                <div>
-                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Alamat Email</label>
-                   <input 
-                     required
-                     type="email"
-                     value={formData.email}
-                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
-                   />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                   <div>
-                      <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Nomor HP</label>
-                      <input 
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
-                        placeholder="08..."
-                      />
-                   </div>
-                   <div>
-                      <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Tgl Lahir</label>
-                      <input 
-                        type="date"
-                        value={formData.tanggal_lahir}
-                        onChange={(e) => setFormData({...formData, tanggal_lahir: e.target.value})}
-                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
-                      />
-                   </div>
-                </div>
-                <div>
-                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Alamat Lengkap</label>
-                   <textarea 
-                     rows={3}
-                     value={formData.alamat}
-                     onChange={(e) => setFormData({...formData, alamat: e.target.value})}
-                     className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
-                   />
-                </div>
-             </div>
-
-             <button type="submit" className="w-full py-5 bg-[#0047AB] text-white font-black rounded-3xl uppercase tracking-[0.2em] text-xs shadow-xl shadow-blue-100 active:scale-95 transition-all">Simpan Perubahan</button>
-          </form>
+        {isLoading ? (
+          <ProfileSkeleton />
         ) : (
           <>
-            {/* Identity Info */}
-            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden p-2">
-               <div className="flex items-center space-x-4 p-5">
-                  <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
-                     <CreditCard size={20} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Nomor NIK</p>
-                     <p className="font-black text-gray-700 truncate">{profile?.nik}</p>
-                  </div>
-               </div>
-               <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
-                  <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
-                     <Mail size={20} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Email Terdaftar</p>
-                     <p className="font-black text-gray-700 truncate">{profile?.email}</p>
-                  </div>
-               </div>
-               <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
-                  <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
-                     <Phone size={20} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Kontak WhatsApp</p>
-                     <p className="font-black text-gray-700">{profile?.phone || 'Belum diatur'}</p>
-                  </div>
-               </div>
-               <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
-                  <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
-                     <MapPin size={20} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Alamat Domisili</p>
-                     <p className="text-sm font-bold text-gray-700 leading-tight">{profile?.alamat || 'Belum diatur'}</p>
-                  </div>
-               </div>
+            {/* User Card */}
+            <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-xl shadow-blue-900/5 text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#0047AB] to-blue-400"></div>
+              
+              <div className="w-24 h-24 bg-blue-50 rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-inner border-4 border-white">
+                <UserIcon size={48} className="text-[#0047AB]" strokeWidth={2.5} />
+              </div>
+              
+              <h2 className="text-2xl font-black text-gray-900 tracking-tight">{profile?.nama_lengkap}</h2>
+              <p className="text-[10px] font-black text-[#34A853] mt-1.5 uppercase tracking-[0.2em] bg-green-50 px-4 py-1.5 rounded-full inline-block">Warga Terverifikasi</p>
             </div>
 
-            {/* Menu List */}
-            <div className="space-y-4">
-              <button 
-                onClick={() => setIsEditMode(true)}
-                className="w-full bg-white p-6 rounded-[32px] border border-gray-100 flex items-center justify-between group hover:shadow-xl transition-all"
-              >
-                <div className="flex items-center space-x-5">
-                  <div className="bg-blue-50 text-blue-600 p-3.5 rounded-2xl transition-transform group-hover:scale-110 shadow-sm">
-                    <Settings size={22} strokeWidth={2.5} />
-                  </div>
-                  <div className="text-left">
-                     <span className="font-black text-gray-800 text-sm">Pengaturan Akun</span>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ubah data & informasi diri</p>
-                  </div>
+            {isEditMode ? (
+              <form onSubmit={handleUpdateProfile} className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm space-y-6 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-black text-gray-800 uppercase tracking-widest text-[11px]">Edit Data Diri</h3>
+                    <button type="button" onClick={() => setIsEditMode(false)} className="text-gray-400"><X size={20}/></button>
                 </div>
-                <ChevronRight size={18} className="text-gray-300 group-hover:text-[#0047AB] transition-colors" />
-              </button>
+                
+                <div className="space-y-4">
+                    <div>
+                      <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Nama Lengkap</label>
+                      <input 
+                        required
+                        value={formData.nama_lengkap}
+                        onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Alamat Email</label>
+                      <input 
+                        required
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                          <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Nomor HP</label>
+                          <input 
+                            value={formData.phone}
+                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
+                            placeholder="08..."
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Tgl Lahir</label>
+                          <input 
+                            type="date"
+                            value={formData.tanggal_lahir}
+                            onChange={(e) => setFormData({...formData, tanggal_lahir: e.target.value})}
+                            className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
+                          />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-2 mb-1.5">Alamat Lengkap</label>
+                      <textarea 
+                        rows={3}
+                        value={formData.alamat}
+                        onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                        className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#0047AB]/20 focus:ring-4 focus:ring-[#0047AB]/5 outline-none transition-all font-bold text-sm"
+                      />
+                    </div>
+                </div>
 
-              <button 
-                onClick={() => setIsPasswordModalOpen(true)}
-                className="w-full bg-white p-6 rounded-[32px] border border-gray-100 flex items-center justify-between group hover:shadow-xl transition-all"
-              >
-                <div className="flex items-center space-x-5">
-                  <div className="bg-green-50 text-green-600 p-3.5 rounded-2xl transition-transform group-hover:scale-110 shadow-sm">
-                    <Shield size={22} strokeWidth={2.5} />
+                <button type="submit" className="w-full py-5 bg-[#0047AB] text-white font-black rounded-3xl uppercase tracking-[0.2em] text-xs shadow-xl shadow-blue-100 active:scale-95 transition-all">Simpan Perubahan</button>
+              </form>
+            ) : (
+              <>
+                {/* Identity Info */}
+                <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden p-2">
+                  <div className="flex items-center space-x-4 p-5">
+                      <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
+                        <CreditCard size={20} strokeWidth={2.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Nomor NIK</p>
+                        <p className="font-black text-gray-700 truncate">{profile?.nik}</p>
+                      </div>
                   </div>
-                  <div className="text-left">
-                     <span className="font-black text-gray-800 text-sm">Keamanan</span>
-                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ganti kata sandi berkala</p>
+                  <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
+                      <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
+                        <Mail size={20} strokeWidth={2.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Email Terdaftar</p>
+                        <p className="font-black text-gray-700 truncate">{profile?.email}</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
+                      <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
+                        <Phone size={20} strokeWidth={2.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Kontak WhatsApp</p>
+                        <p className="font-black text-gray-700">{profile?.phone || 'Belum diatur'}</p>
+                      </div>
+                  </div>
+                  <div className="flex items-center space-x-4 p-5 border-t border-gray-50">
+                      <div className="bg-blue-50 p-3 rounded-2xl text-[#0047AB]">
+                        <MapPin size={20} strokeWidth={2.5} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Alamat Domisili</p>
+                        <p className="text-sm font-bold text-gray-700 leading-tight">{profile?.alamat || 'Belum diatur'}</p>
+                      </div>
                   </div>
                 </div>
-                <ChevronRight size={18} className="text-gray-300 group-hover:text-[#34A853] transition-colors" />
+
+                {/* Menu List */}
+                <div className="space-y-4">
+                  <button 
+                    onClick={() => setIsEditMode(true)}
+                    className="w-full bg-white p-6 rounded-[32px] border border-gray-100 flex items-center justify-between group hover:shadow-xl transition-all"
+                  >
+                    <div className="flex items-center space-x-5">
+                      <div className="bg-blue-50 text-blue-600 p-3.5 rounded-2xl transition-transform group-hover:scale-110 shadow-sm">
+                        <Settings size={22} strokeWidth={2.5} />
+                      </div>
+                      <div className="text-left">
+                        <span className="font-black text-gray-800 text-sm">Pengaturan Akun</span>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ubah data & informasi diri</p>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} className="text-gray-300 group-hover:text-[#0047AB] transition-colors" />
+                  </button>
+
+                  <button 
+                    onClick={() => setIsPasswordModalOpen(true)}
+                    className="w-full bg-white p-6 rounded-[32px] border border-gray-100 flex items-center justify-between group hover:shadow-xl transition-all"
+                  >
+                    <div className="flex items-center space-x-5">
+                      <div className="bg-green-50 text-green-600 p-3.5 rounded-2xl transition-transform group-hover:scale-110 shadow-sm">
+                        <Shield size={22} strokeWidth={2.5} />
+                      </div>
+                      <div className="text-left">
+                        <span className="font-black text-gray-800 text-sm">Keamanan</span>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ganti kata sandi berkala</p>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} className="text-gray-300 group-hover:text-[#34A853] transition-colors" />
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Logout Button */}
+            {!isEditMode && (
+              <button 
+                onClick={() => {
+                  toast.success('Sampai jumpa kembali!');
+                  dispatch(logout());
+                }}
+                className="w-full py-5 bg-red-50 text-red-600 font-black rounded-[32px] uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-3 hover:bg-red-100 transition-all active:scale-95 mt-10 border border-red-100 shadow-sm"
+              >
+                <LogOut size={18} strokeWidth={3} />
+                <span>Keluar Aplikasi</span>
               </button>
-            </div>
+            )}
           </>
-        )}
-
-        {/* Logout Button */}
-        {!isEditMode && (
-          <button 
-            onClick={() => {
-               toast.success('Sampai jumpa kembali!');
-               dispatch(logout());
-            }}
-            className="w-full py-5 bg-red-50 text-red-600 font-black rounded-[32px] uppercase tracking-[0.2em] text-[10px] flex items-center justify-center space-x-3 hover:bg-red-100 transition-all active:scale-95 mt-10 border border-red-100 shadow-sm"
-          >
-            <LogOut size={18} strokeWidth={3} />
-            <span>Keluar Aplikasi</span>
-          </button>
         )}
       </main>
 
@@ -374,8 +414,11 @@ const ProfilePage = () => {
             </div>
           </button>
 
-          <button className="flex flex-col items-center flex-1 py-2 text-gray-400">
-            <Bell size={22} strokeWidth={2} />
+          <button 
+            onClick={() => navigate('/warga/notifikasi')}
+            className={`flex flex-col items-center flex-1 py-2 transition-all duration-300 ${isActive('/warga/notifikasi') ? 'text-[#0047AB]' : 'text-gray-400'}`}
+          >
+            <Bell size={22} strokeWidth={isActive('/warga/notifikasi') ? 3 : 2} />
           </button>
 
           <button 

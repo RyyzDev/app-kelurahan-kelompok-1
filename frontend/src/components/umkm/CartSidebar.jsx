@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, Plus, Minus, Trash2, CreditCard } from 'lucide-react';
 
-const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }) => {
+const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, onCheckout }) => {
   const totalPrice = cartItems.reduce((acc, item) => {
     return acc + (Number(item.harga) * item.quantity);
   }, 0);
@@ -108,6 +108,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveIte
                </div>
 
                <button 
+                 onClick={onCheckout}
                  disabled={cartItems.length === 0}
                  className="w-full py-5 bg-[#0047AB] text-white font-black rounded-3xl uppercase tracking-[0.2em] shadow-xl shadow-blue-200 flex items-center justify-center space-x-3 active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none"
                >

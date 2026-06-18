@@ -5,15 +5,49 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    allowedHosts: [
+      'churchy-unpacifistic-velva.ngrok-free.dev'
+    ],
+    hmr: {
+      clientPort: 443 // Paksa HMR client menggunakan port HTTPS (Ngrok)
+    }
+  },
   plugins: [
      react(),
      tailwindcss(),
      VitePWA({
        registerType: 'autoUpdate',
-       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'maskable-icon.svg', 'logo192.png', 'logo512.png'],
+       devOptions: {
+         enabled: true,
+         type: 'module'
+       },
+       includeAssets: ['manifest.json'],
        workbox: {
-         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+         globPatterns: ['**/*.{js,css,html,svg,png,ico,json}'],
+         navigateFallback: '/index.html',
+         navigateFallbackAllowlist: [/^(?!\/__).*/],
+         cleanupOutdatedCaches: true,
+         clientsClaim: true,
+         skipWaiting: true,
          runtimeCaching: [
+           {
+             urlPattern: ({ request }) => request.mode === 'navigate',
+             handler: 'NetworkFirst',
+             options: {
+               cacheName: 'pages-cache',
+               networkTimeoutSeconds: 3,
+               expiration: {
+                 maxEntries: 50,
+                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
+               },
+               cacheableResponse: {
+                 statuses: [0, 200]
+               }
+             }
+           },
            {
              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
              handler: 'CacheFirst',
@@ -60,6 +94,20 @@ export default defineConfig({
                cacheName: 'admin-surat-cache',
                expiration: {
                  maxEntries: 100,
+                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
+               },
+               cacheableResponse: {
+                 statuses: [0, 200]
+               }
+             }
+           },
+           {
+             urlPattern: /\/api\/user\/profile/i,
+             handler: 'NetworkFirst',
+             options: {
+               cacheName: 'user-profile-cache',
+               expiration: {
+                 maxEntries: 1,
                  maxAgeSeconds: 60 * 60 * 24 // 24 hours
                },
                cacheableResponse: {

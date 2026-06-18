@@ -9,7 +9,9 @@ import {
   LogOut, 
   ChevronRight,
   ClipboardCheck,
-  Megaphone
+  Megaphone,
+  Calendar,
+  Syringe
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/authSlice';
@@ -29,6 +31,8 @@ const AdminSidebar = () => {
   const menuItems = [
     { title: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
     { title: 'Verifikasi Surat', icon: ClipboardCheck, path: '/admin/verifikasi' },
+    { title: 'Jadwal Vaksinasi', icon: Syringe, path: '/admin/vaksinasi' },
+    { title: 'Kelola Event', icon: Calendar, path: '/admin/events' },
     { title: 'UMKM Management', icon: Store, path: '/admin/umkm' },
     { title: 'Pengaduan Warga', icon: Megaphone, path: '/admin/pengaduan' },
     { title: 'Data Kependudukan', icon: Users, path: '/admin/users' },

@@ -94,7 +94,12 @@ const DetailStatusSuratPage = () => {
              </div>
           </div>
 
-          <div className="p-8">
+          <div className="border-t border-blue-800/20 p-8">
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Alasan Permohonan</h3>
+            <p className="text-gray-600 font-medium leading-relaxed italic">"{surat.alasan_permohonan}"</p>
+          </div>
+
+          <div className="p-8 border-t border-gray-50">
              <div className="bg-gray-50 rounded-[32px] border border-gray-100 p-2 mb-10">
                 <DocumentStatusTracker status={surat.status} format={surat.format_surat} />
              </div>

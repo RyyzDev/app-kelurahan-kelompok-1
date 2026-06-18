@@ -25,7 +25,35 @@ import ChatDrawer from '../../components/chatbot/ChatDrawer';
 import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
 import BansosDrawer from '../../components/bansos/BansosDrawer';
 import VaksinasiDrawer from '../../components/vaksinasi/VaksinasiDrawer';
-import { getHomeData } from '../../services/homeService';
+import { getAllEvents, registerForEvent, getMyRegistrations } from '../../services/eventService';
+import EventDetailDrawer, { TicketModal } from '../../components/events/EventDetailDrawer';
+import toast from 'react-hot-toast';
+
+const STATIC_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
+const mockBansosDist = [
+  {
+    id: 1,
+    title: 'Sembako Tahap 3',
+    status: 'Sedang Berlangsung',
+    date: '12 Juni 2026',
+    total_warga: '250 Warga'
+  },
+  {
+    id: 2,
+    title: 'Bantuan Tunai BBM',
+    status: 'Terjadwal',
+    date: '18 Juni 2026',
+    total_warga: '1.200 Warga'
+  },
+  {
+    id: 3,
+    title: 'BLT Dana Desa',
+    status: 'Selesai',
+    date: '05 Juni 2026',
+    total_warga: '450 Warga'
+  }
+];
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -36,18 +64,57 @@ const HomePage = () => {
   const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
   const [isBansosOpen, setIsBansosOpen] = useState(false);
   const [isVaksinasiOpen, setIsVaksinasiOpen] = useState(false);
-
-  const [homeData, setHomeData] = useState({ events: [], bansos: [] });
+  
+  const [events, setEvents] = useState([]);
+  const [myRegistrations, setMyRegistrations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRegistering, setIsRegistering] = useState(false);
+  
+  // Drawer & Modal State
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isEventDrawerOpen, setIsEventDrawerOpen] = useState(false);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
+  const [newRegistration, setNewRegistration] = useState(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getHomeData();
-      setHomeData(data);
-      setIsLoading(false);
+      try {
+        const [eventResponse, registrationResponse] = await Promise.all([
+          getAllEvents(),
+          getMyRegistrations()
+        ]);
+        setEvents(eventResponse.data);
+        setMyRegistrations(registrationResponse.data);
+      } catch (error) {
+        toast.error('Gagal memuat data homepage.');
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchData();
   }, []);
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setIsEventDrawerOpen(true);
+  };
+
+  const handleRegister = async (eventId) => {
+    setIsRegistering(true);
+    try {
+      const response = await registerForEvent(eventId);
+      setNewRegistration(response.data);
+      // Add to local state to update UI immediately
+      setMyRegistrations(prev => [...prev, response.data]);
+      setIsEventDrawerOpen(false);
+      setIsTicketModalOpen(true);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Gagal mendaftar event.');
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   const services = [
     { 
@@ -184,22 +251,31 @@ const HomePage = () => {
             [1, 2].map(i => (
               <div key={i} className="w-72 h-48 bg-white rounded-[32px] shrink-0 animate-pulse border border-gray-100 shadow-sm" />
             ))
-          ) : homeData.events.map((event) => (
-            <div key={event.id} className="w-72 bg-white rounded-[32px] border border-gray-100 overflow-hidden shrink-0 shadow-xl shadow-blue-900/5 group">
+          ) : events.map((event) => (
+            <div key={event.id} onClick={() => handleEventClick(event)} className={`w-72 bg-white rounded-[32px] border border-gray-100 overflow-hidden shrink-0 shadow-xl shadow-blue-900/5 group transition-all cursor-pointer ${event.status === 'berakhir' ? 'grayscale opacity-70' : 'hover:scale-105'}`}>
                <div className="h-32 relative overflow-hidden">
-                  <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  {event.foto_url ? (
+                     <img src={`${STATIC_URL}${event.foto_url}`} alt={event.nama_event} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300"><Calendar size={40}/></div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center space-x-2 text-white">
                      <MapPin size={10} strokeWidth={3} />
-                     <span className="text-[9px] font-black uppercase tracking-widest">{event.location}</span>
+                     <span className="text-[9px] font-black uppercase tracking-widest">{event.lokasi || 'Online'}</span>
                   </div>
+                  {event.status === 'berakhir' && (
+                     <div className="absolute top-3 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg">
+                        Berakhir
+                     </div>
+                  )}
                </div>
                <div className="p-4 flex items-center justify-between">
                   <div className="min-w-0">
-                     <h4 className="font-black text-gray-800 text-sm truncate">{event.title}</h4>
+                     <h4 className="font-black text-gray-800 text-sm truncate">{event.nama_event}</h4>
                      <div className="flex items-center space-x-2 text-gray-400 mt-1">
                         <Calendar size={10} strokeWidth={3} />
-                        <span className="text-[9px] font-bold">{event.date}</span>
+                        <span className="text-[9px] font-bold">{new Date(event.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric'})}</span>
                      </div>
                   </div>
                   <div className="bg-blue-50 p-2 rounded-xl text-[#0047AB]">
@@ -226,7 +302,7 @@ const HomePage = () => {
              [1, 2].map(i => (
                <div key={i} className="w-full h-24 bg-white rounded-[32px] animate-pulse border border-gray-100 shadow-sm" />
              ))
-           ) : homeData.bansos.map((dist) => (
+           ) : mockBansosDist.map((dist) => (
              <div key={dist.id} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex items-center space-x-5 group hover:shadow-2xl transition-all duration-500">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
                   dist.status === 'Sedang Berlangsung' ? 'bg-orange-50 text-orange-600' : 
@@ -290,8 +366,14 @@ const HomePage = () => {
             </div>
           </button>
 
-          <button className="flex flex-col items-center flex-1 py-2 text-gray-400">
-            <Bell size={22} strokeWidth={2} />
+          <button 
+            onClick={() => navigate('/warga/notifikasi')}
+            className={`flex flex-col items-center flex-1 py-2 transition-all duration-300 ${isActive('/warga/notifikasi') ? 'text-[#0047AB]' : 'text-gray-400'}`}
+          >
+            <div className={`${isActive('/warga/notifikasi') ? 'bg-blue-50 p-2.5 rounded-2xl shadow-inner' : 'p-2.5'}`}>
+              <Bell size={22} strokeWidth={isActive('/warga/notifikasi') ? 3 : 2} />
+            </div>
+            <span className={`text-[9px] font-black mt-1 uppercase tracking-widest ${isActive('/warga/notifikasi') ? 'opacity-100' : 'opacity-0'}`}>Notifikasi</span>
           </button>
 
           <button 
@@ -311,6 +393,25 @@ const HomePage = () => {
       <PersuratanDrawer isOpen={isPersuratanOpen} onClose={() => setIsPersuratanOpen(false)} />
       <BansosDrawer isOpen={isBansosOpen} onClose={() => setIsBansosOpen(false)} />
       <VaksinasiDrawer isOpen={isVaksinasiOpen} onClose={() => setIsVaksinasiOpen(false)} />
+
+      {selectedEvent && (
+        <EventDetailDrawer 
+          event={selectedEvent}
+          isOpen={isEventDrawerOpen}
+          onClose={() => setIsEventDrawerOpen(false)}
+          onRegister={handleRegister}
+          isRegistered={myRegistrations.some(reg => reg.event_id === selectedEvent.id)}
+          isLoading={isRegistering}
+        />
+      )}
+
+      {isTicketModalOpen && newRegistration && (
+        <TicketModal
+          registration={newRegistration}
+          event={events.find(e => e.id === newRegistration.event_id)}
+          onClose={() => setIsTicketModalOpen(false)}
+        />
+      )}
 
       <style dangerouslySetInnerHTML={{ __html: `
         .crane-container { position: absolute; left: -10%; animation: fly-across linear infinite; }

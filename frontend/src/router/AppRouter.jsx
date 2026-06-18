@@ -9,15 +9,20 @@ import HomePage from '../pages/warga/HomePage';
 import BuatSuratPage from '../pages/warga/BuatSuratPage';
 import DaftarStatusSuratPage from '../pages/warga/DaftarStatusSuratPage';
 import DetailStatusSuratPage from '../pages/warga/DetailStatusSuratPage';
-import DaftarRiwayatVaksinasiPage from '../pages/warga/DaftarRiwayatVaksinasiPage';
-import BansosPage from '../pages/warga/BansosPage';
-import AspirasiPage from '../pages/warga/AspirasiPage';
 import UMKMPage from '../pages/warga/UMKMPage';
+import AspirasiPage from '../pages/warga/AspirasiPage';
 import MyTokoPage from '../pages/warga/MyTokoPage';
+import TokoDetailPage from '../pages/warga/TokoDetailPage';
+import NotificationsPage from '../pages/warga/NotificationsPage';
+import TicketDetailPage from '../pages/warga/TicketDetailPage';
+import VaksinasiTicketDetailPage from '../pages/warga/VaksinasiTicketDetailPage';
+import OrderDetailPage from '../pages/warga/OrderDetailPage';
 import ProfilePage from '../pages/warga/ProfilePage';
 import DashboardPage from '../pages/admin/DashboardPage';
 import VerifikasiPage from '../pages/admin/VerifikasiPage';
 import AdminUMKMPage from '../pages/admin/AdminUMKMPage';
+import EventsPage from '../pages/admin/EventsPage';
+import VaksinasiAdminPage from '../pages/admin/VaksinasiAdminPage';
 import UsersPage from '../pages/admin/UsersPage';
 import ScanPage from '../pages/petugas/ScanPage';
 import AdminLayout from '../components/layout/AdminLayout';
@@ -141,24 +146,15 @@ const AppRouter = () => {
                 }
               />
 
-              <Route
-                path="/warga/vaksinasi/riwayat"
-                element={
-                  <ProtectedRoute allowedRoles={['warga']}>
-                    <DaftarRiwayatVaksinasiPage />
-                  </ProtectedRoute>
-                }
-              />
-
               {/* Bansos Routes */}
-              <Route
+              {/* <Route
                 path="/warga/bansos/daftar"
                 element={
                   <ProtectedRoute allowedRoles={['warga']}>
                     <BansosPage />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
               <Route
                 path="/warga/bansos/penyaluran"
                 element={
@@ -198,8 +194,48 @@ const AppRouter = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/warga/umkm/toko/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['warga']}>
+                    <TokoDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+               <Route
+                path="/warga/notifikasi"
+                element={
+                  <ProtectedRoute allowedRoles={['warga']}>
+                    <NotificationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/warga/tiket/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['warga']}>
+                    <TicketDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/warga/vaksinasi/tiket/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['warga']}>
+                    <VaksinasiTicketDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/warga/pesanan/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['warga']}>
+                    <OrderDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Admin Routes */}
+               {/* Admin Routes */}
               <Route
                 path="/admin"
                 element={
@@ -221,6 +257,22 @@ const AppRouter = () => {
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <AdminUMKMPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/events"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <EventsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/vaksinasi"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <VaksinasiAdminPage />
                   </ProtectedRoute>
                 }
               />

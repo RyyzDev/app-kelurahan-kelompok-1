@@ -97,3 +97,13 @@ export const verifyProduk = async (id, data) => {
   const response = await api.patch(`/umkm/admin/verify/${id}`, data);
   return response.data;
 };
+
+export const getPublicTokoById = async (id) => {
+  const response = await api.get(`/umkm/toko/${id}`);
+  return response.data;
+};
+
+export const getMyTokoDashboard = async () => {
+  const response = await api.get('/umkm/toko/my/dashboard');
+  return response.data;
+};

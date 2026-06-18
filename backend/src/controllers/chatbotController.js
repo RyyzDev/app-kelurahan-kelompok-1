@@ -1,4 +1,4 @@
-import { getChatbotResponse } from '../services/chatbotService.js';
+import { processChatStream } from '../services/chatbotService.js';
 import { successResponse, errorResponse } from '../utils/responseHelper.js';
 import Joi from 'joi';
 
@@ -25,13 +25,24 @@ export const sendMessage = async (req, res) => {
     }
 
     const { messages } = value;
-    const aiResponse = await getChatbotResponse(messages);
+    const userId = req.user.id; // User ID from auth middleware
 
-    return successResponse(res, {
-      role: 'assistant',
-      content: aiResponse,
-    });
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Start stream and tool execution
+    await processChatStream(messages, userId, res);
+
   } catch (err) {
-    return errorResponse(res, err);
+    console.error('SendMessage Error:', err);
+    // If headers already sent, we can't use errorResponse
+    if (!res.headersSent) {
+      return errorResponse(res, err);
+    } else {
+      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
   }
 };

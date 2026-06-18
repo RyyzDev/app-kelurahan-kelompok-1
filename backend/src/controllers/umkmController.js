@@ -2,6 +2,7 @@ import prisma from '../lib/prisma.js';
 import { successResponse, errorResponse } from '../utils/responseHelper.js';
 import Joi from 'joi';
 
+const EndPointAPI = "https://churchy-unpacifistic-velva.ngrok-free.dev/api";
 // Validasi Toko
 const tokoSchema = Joi.object({
   nama_toko: Joi.string().min(3).required(),
@@ -77,7 +78,7 @@ export const addProduk = async (req, res) => {
     if (!toko) return res.status(404).json({ success: false, message: 'Daftarkan toko Anda terlebih dahulu.' });
 
     // Handle foto_url dari file upload
-    const foto_url = req.file ? `${req.protocol}://${req.get('host')}/uploads/produk/${req.file.filename}` : null;
+    const foto_url = req.file ? `${EndPointAPI}/uploads/produk/${req.file.filename}` : null;
 
     const produk = await prisma.produk.create({
       data: {
@@ -122,7 +123,7 @@ export const updateProduk = async (req, res) => {
 
     // Handle foto_url baru jika ada upload
     const foto_url = req.file 
-      ? `${req.protocol}://${req.get('host')}/uploads/produk/${req.file.filename}` 
+      ? `${req.protocol}://${EndPointAPI}/uploads/produk/${req.file.filename}` 
       : existingProduk.foto_url;
 
     const updated = await prisma.produk.update({
@@ -221,10 +222,124 @@ export const getPublicProduk = async (req, res) => {
         status: 'disetujui',
         ...(kategori && { kategori })
       },
-      include: { toko: true },
+      include: { 
+        toko: { 
+          include: { 
+            user: { 
+              select: { nama_lengkap: true } 
+            } 
+          } 
+        } 
+      },
       orderBy: { createdAt: 'desc' }
     });
     return successResponse(res, products);
+  } catch (err) {
+    return errorResponse(res, err);
+  }
+};
+
+/**
+ * Get Toko details and its products for public view
+ */
+export const getTokoById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const toko = await prisma.toko.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            nama_lengkap: true,
+            email: true,
+            phone: true
+          }
+        },
+        produk: {
+          where: { status: 'disetujui' },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+
+    if (!toko) return res.status(404).json({ success: false, message: 'Toko tidak ditemukan.' });
+    
+    return successResponse(res, toko);
+  } catch (err) {
+    return errorResponse(res, err);
+  }
+};
+
+/**
+ * Get all orders and revenue metrics for the seller's own toko
+ */
+export const getMyTokoDashboard = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 1. Find the user's toko
+    const toko = await prisma.toko.findUnique({
+      where: { user_id: userId },
+      select: { id: true }
+    });
+
+    if (!toko) {
+      return errorResponse(res, { message: 'Anda tidak memiliki toko.' }, 404);
+    }
+
+    // 2. Find all products belonging to the toko
+    const produkIds = (await prisma.produk.findMany({
+      where: { toko_id: toko.id },
+      select: { id: true }
+    })).map(p => p.id);
+
+    // 3. Find all order items for those products from successful orders
+    const successfulOrderItems = await prisma.orderItem.findMany({
+      where: {
+        produk_id: { in: produkIds },
+        order: {
+          status_pembayaran: 'berhasil'
+        }
+      },
+      select: {
+        kuantitas: true,
+        harga: true
+      }
+    });
+
+    // 4. Calculate total revenue
+    const totalRevenue = successfulOrderItems.reduce((sum, item) => {
+      return sum + (item.kuantitas * Number(item.harga));
+    }, 0);
+
+    // 5. Get recent orders (all statuses)
+    const recentOrders = await prisma.order.findMany({
+      where: {
+        items: {
+          some: {
+            produk_id: { in: produkIds }
+          }
+        }
+      },
+      include: {
+        items: {
+          where: {
+            produk_id: { in: produkIds }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20 // Limit to recent 20 orders
+    });
+
+    const response = {
+      totalRevenue,
+      totalOrders: recentOrders.length,
+      orders: recentOrders
+    };
+    
+    return successResponse(res, response);
+
   } catch (err) {
     return errorResponse(res, err);
   }

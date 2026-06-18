@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingCart, Info, ShieldCheck, Star, CheckCircle2, ShoppingBag } from 'lucide-react';
+import { X, ShoppingCart, Info, ShieldCheck, Star, CheckCircle2, ShoppingBag, ArrowRight } from 'lucide-react';
 
-const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }) => {
+const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart, onSellerClick }) => {
   if (!product) return null;
+
+  const storeName = product.toko?.nama_toko || 'Toko Lokal';
 
   return (
     <AnimatePresence>
@@ -59,6 +61,14 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, onAddToCart, isInCart }
                <div className="p-8 space-y-8">
                   {/* Title & Price */}
                   <div>
+                    <button 
+                      onClick={() => onSellerClick(product.toko.id)}
+                      className="mb-3 flex items-center space-x-2 text-blue-600 bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-100 transition-colors group"
+                    >
+                      <ShoppingBag size={14} strokeWidth={3} />
+                      <span className="text-[10px] font-black uppercase tracking-widest">{storeName}</span>
+                      <ArrowRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
                     <div className="flex justify-between items-start mb-2">
                        <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight max-w-[70%]">{product.nama_produk}</h2>
                        <p className="text-2xl font-black text-[#0047AB]">Rp {Number(product.harga).toLocaleString('id-ID')}</p>

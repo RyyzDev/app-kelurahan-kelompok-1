@@ -31,7 +31,49 @@ model User {
 
   permohonan    PermohonanSurat[]
   toko          Toko?
+  orders          Order[]
+  event_registrations EventRegistration[]
+  pendaftaran_vaksinasi PendaftaranVaksinasi[]
+
   @@map("users")
+}
+
+enum StatusPembayaran {
+  pending
+  berhasil
+  gagal
+  kadaluarsa
+  dibatalkan
+}
+
+model Order {
+  id                String           @id @default(uuid())
+  user_id           String
+  total_harga       Decimal          @db.Decimal(12, 2)
+  status_pembayaran StatusPembayaran @default(pending)
+  snap_token        String?
+  snap_redirect_url String?
+  
+  user              User             @relation(fields: [user_id], references: [id])
+  items             OrderItem[]
+
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  order_id    String
+  produk_id   String
+  nama_produk String
+  harga       Decimal  @db.Decimal(12, 2)
+  kuantitas   Int
+
+  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
 }
 
 model Toko {
@@ -126,4 +168,81 @@ model PermohonanSurat {
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
   @@map("permohonan_surat")
+}
+
+enum StatusEvent {
+  aktif
+  berakhir
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  nama_event  String
+  deskripsi   String?
+  tanggal     DateTime
+  lokasi      String?
+  foto_url    String?
+  status      StatusEvent @default(aktif)
+  
+  registrations EventRegistration[]
+  
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("events")
+}
+
+model EventRegistration {
+  id              String      @id @default(uuid())
+  user_id         String
+  event_id        String
+  registeredAt    DateTime    @default(now()) @map("registered_at")
+
+  user            User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  event           Event       @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, event_id])
+  @@map("event_registrations")
+}
+
+enum StatusVaksinasi {
+  TERSEDIA
+  PENUH
+  SELESAI
+}
+
+model JadwalVaksinasi {
+  id            String      @id @default(uuid())
+  nama_vaksin   String
+  deskripsi     String?
+  tanggal       DateTime
+  jam_mulai     String
+  jam_selesai   String
+  lokasi        String
+  kuota         Int
+  sisa_kuota    Int
+  status        StatusVaksinasi @default(TERSEDIA)
+  
+  pendaftar     PendaftaranVaksinasi[]
+
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  @@map("jadwal_vaksinasi")
+}
+
+model PendaftaranVaksinasi {
+  id              String      @id @default(uuid())
+  user_id         String
+  jadwal_id       String
+  nomor_antrian   Int
+  status          String      @default("terdaftar") // terdaftar, hadir, tidak_hadir
+
+  user            User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  jadwal          JadwalVaksinasi @relation(fields: [jadwal_id], references: [id], onDelete: Cascade)
+
+  registeredAt    DateTime    @default(now()) @map("registered_at")
+
+  @@unique([user_id, jadwal_id])
+  @@map("pendaftaran_vaksinasi")
 }

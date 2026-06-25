@@ -1,12 +1,5 @@
-const mockQueue = [
-  { id: 1, number: 'A-001', name: 'Budi Santoso', slot: '08:00 - 09:00', status: 'Selesai' },
-  { id: 2, number: 'A-002', name: 'Siti Aminah', slot: '08:00 - 09:00', status: 'Selesai' },
-  { id: 3, number: 'A-003', name: 'Agus Pratama', slot: '09:00 - 10:00', status: 'Melayani' },
-  { id: 4, number: 'A-004', name: 'Dewi Lestari', slot: '09:00 - 10:00', status: 'Menunggu' },
-  { id: 5, number: 'A-005', name: 'Eko Wijaya', slot: '10:00 - 11:00', status: 'Menunggu' },
-];
-
-const AntrianTable = () => {
+const AntrianTable = ({ data }) => {
+  const queue = data || [];
   return (
     <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-white">
@@ -25,13 +18,17 @@ const AntrianTable = () => {
             <tr>
               <th className="px-8 py-5">No. Antrean</th>
               <th className="px-8 py-5">Nama Warga</th>
-              <th className="px-8 py-5">Slot Waktu</th>
+              <th className="px-8 py-5">Slot Waktu / Jadwal</th>
               <th className="px-8 py-5">Status</th>
               <th className="px-8 py-5 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {mockQueue.map((item) => (
+            {queue.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="px-8 py-10 text-center text-gray-400 font-bold text-sm">Tidak ada antrian hari ini.</td>
+              </tr>
+            ) : queue.map((item) => (
               <tr key={item.id} className="hover:bg-blue-50/30 transition-colors group">
                 <td className="px-8 py-6 font-black text-[#0047AB] text-lg tracking-tighter">{item.number}</td>
                 <td className="px-8 py-6 text-gray-800 font-extrabold">{item.name}</td>

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import ChatDrawer from '../../components/chatbot/ChatDrawer';
 import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
-import BansosDrawer from '../../components/bansos/BansosDrawer';
+import PengumumanDrawer from '../../components/pengumuman/PengumumanDrawer';
 import { getProfile, updateProfile, changePassword } from '../../services/userService';
 import toast from 'react-hot-toast';
 
@@ -86,7 +86,7 @@ const ProfilePage = () => {
   
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
-  const [isBansosOpen, setIsBansosOpen] = useState(false);
+  const [isPengumumanOpen, setIsPengumumanOpen] = useState(false);
 
   // Form States
   const [formData, setFormData] = useState({
@@ -435,7 +435,7 @@ const ProfilePage = () => {
       {/* Drawers */}
       <ChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <PersuratanDrawer isOpen={isPersuratanOpen} onClose={() => setIsPersuratanOpen(false)} />
-      <BansosDrawer isOpen={isBansosOpen} onClose={() => setIsBansosOpen(false)} />
+      <PengumumanDrawer isOpen={isPengumumanOpen} onClose={() => setIsPengumumanOpen(false)} />
     </div>
   );
 };

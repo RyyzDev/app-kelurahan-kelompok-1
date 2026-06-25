@@ -22,3 +22,33 @@ export const updateProgressRT_RW = async (id, data) => {
   const response = await api.patch(`/admin/permohonan/${id}/progress-rt-rw`, data);
   return response.data;
 };
+
+export const getDashboardStats = async () => {
+  const response = await api.get('/admin/dashboard/stats');
+  return response.data;
+};
+
+export const getVaksinAntrianList = async () => {
+  const response = await api.get('/admin/antrian/vaksin');
+  return response.data;
+};
+
+export const getVaksinAntrianDetail = async (id) => {
+  const response = await api.get(`/admin/antrian/vaksin/${id}`);
+  return response.data;
+};
+
+export const updateVaksinAntrianStatus = async (id, status) => {
+  const response = await api.patch(`/admin/antrian/vaksin/${id}/status`, { status });
+  return response.data;
+};
+
+export const getEventAntrianList = async () => {
+  const response = await api.get('/admin/antrian/event');
+  return response.data;
+};
+
+export const getEventAntrianDetail = async (id) => {
+  const response = await api.get(`/admin/antrian/event/${id}`);
+  return response.data;
+};

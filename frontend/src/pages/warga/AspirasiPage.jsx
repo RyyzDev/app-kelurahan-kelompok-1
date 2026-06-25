@@ -2,22 +2,27 @@ import { useState } from 'react';
 import { Send, ArrowLeft, MessageSquare, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { createAspirasi } from '../../services/aspirasiService';
 
 const AspirasiPage = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
 
     setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
+    try {
+      await createAspirasi({ pesan: message });
       setMessage('');
       toast.success('Aspirasi Anda telah dikirim. Terima kasih!');
-    }, 1500);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal mengirim aspirasi.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (

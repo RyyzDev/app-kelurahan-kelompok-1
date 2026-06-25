@@ -5,13 +5,14 @@ import {
   FileText, 
   Store, 
   Users, 
-  Settings, 
   LogOut, 
   ChevronRight,
   ClipboardCheck,
+  ClipboardList,
   Megaphone,
   Calendar,
-  Syringe
+  Syringe,
+  MessageSquare
 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/authSlice';
@@ -31,10 +32,13 @@ const AdminSidebar = () => {
   const menuItems = [
     { title: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
     { title: 'Verifikasi Surat', icon: ClipboardCheck, path: '/admin/verifikasi' },
+    { title: 'Kelola Antrean', icon: ClipboardList, path: '/admin/antrian' },
+    { title: 'Kelola Pengumuman', icon: Megaphone, path: '/admin/pengumuman' },
     { title: 'Jadwal Vaksinasi', icon: Syringe, path: '/admin/vaksinasi' },
     { title: 'Kelola Event', icon: Calendar, path: '/admin/events' },
     { title: 'UMKM Management', icon: Store, path: '/admin/umkm' },
-    { title: 'Pengaduan Warga', icon: Megaphone, path: '/admin/pengaduan' },
+    { title: 'Aspirasi Warga', icon: MessageSquare, path: '/admin/aspirasi' },
+    { title: 'Pengaduan Warga', icon: FileText, path: '/admin/pengaduan' },
     { title: 'Data Kependudukan', icon: Users, path: '/admin/users' },
   ];
 
@@ -96,10 +100,6 @@ const AdminSidebar = () => {
 
       {/* Bottom Section */}
       <div className="p-6 border-t border-gray-50 space-y-4">
-        <button className="w-full flex items-center space-x-4 p-4 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all font-bold text-sm">
-           <Settings size={20} strokeWidth={2} />
-           <span>Pengaturan</span>
-        </button>
         <button 
           onClick={handleLogout}
           className="w-full flex items-center space-x-4 p-4 rounded-2xl text-red-400 hover:bg-red-50 hover:text-red-600 transition-all font-black text-sm"

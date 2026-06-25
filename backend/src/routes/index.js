@@ -9,6 +9,8 @@ import paymentRoutes from './paymentRoutes.js';
 import eventRoutes from './eventRoutes.js';
 import vaksinasiRoutes from './vaksinasiRoutes.js';
 import orderRoutes from './orderRoutes.js';
+import pengumumanRoutes from './pengumumanRoutes.js';
+import aspirasiRoutes from './aspirasiRoutes.js';
 import { auth } from '../middleware/authMiddleware.js';
 import { syncData } from '../controllers/syncController.js';
 
@@ -26,5 +28,7 @@ router.use('/payment', paymentRoutes);
 router.use('/events', eventRoutes);
 router.use('/vaksinasi', vaksinasiRoutes);
 router.use('/orders', orderRoutes);
+router.use('/pengumuman', pengumumanRoutes);
+router.use('/aspirasi', aspirasiRoutes);
 
 export default router;

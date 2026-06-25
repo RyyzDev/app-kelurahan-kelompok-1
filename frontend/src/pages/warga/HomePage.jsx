@@ -18,42 +18,20 @@ import {
   Info,
   Clock,
   CheckCircle2,
-  CalendarDays
+  CalendarDays,
+  Megaphone
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ChatDrawer from '../../components/chatbot/ChatDrawer';
 import PersuratanDrawer from '../../components/persuratan/PersuratanDrawer';
-import BansosDrawer from '../../components/bansos/BansosDrawer';
+import PengumumanDrawer from '../../components/pengumuman/PengumumanDrawer';
 import VaksinasiDrawer from '../../components/vaksinasi/VaksinasiDrawer';
 import { getAllEvents, registerForEvent, getMyRegistrations } from '../../services/eventService';
+import { getAllPengumuman } from '../../services/pengumumanService';
 import EventDetailDrawer, { TicketModal } from '../../components/events/EventDetailDrawer';
 import toast from 'react-hot-toast';
 
 const STATIC_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
-
-const mockBansosDist = [
-  {
-    id: 1,
-    title: 'Sembako Tahap 3',
-    status: 'Sedang Berlangsung',
-    date: '12 Juni 2026',
-    total_warga: '250 Warga'
-  },
-  {
-    id: 2,
-    title: 'Bantuan Tunai BBM',
-    status: 'Terjadwal',
-    date: '18 Juni 2026',
-    total_warga: '1.200 Warga'
-  },
-  {
-    id: 3,
-    title: 'BLT Dana Desa',
-    status: 'Selesai',
-    date: '05 Juni 2026',
-    total_warga: '450 Warga'
-  }
-];
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -62,11 +40,12 @@ const HomePage = () => {
   
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isPersuratanOpen, setIsPersuratanOpen] = useState(false);
-  const [isBansosOpen, setIsBansosOpen] = useState(false);
+  const [isPengumumanOpen, setIsPengumumanOpen] = useState(false);
   const [isVaksinasiOpen, setIsVaksinasiOpen] = useState(false);
   
   const [events, setEvents] = useState([]);
   const [myRegistrations, setMyRegistrations] = useState([]);
+  const [pengumuman, setPengumuman] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   
@@ -80,12 +59,14 @@ const HomePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [eventResponse, registrationResponse] = await Promise.all([
+        const [eventResponse, registrationResponse, pengumumanResponse] = await Promise.all([
           getAllEvents(),
-          getMyRegistrations()
+          getMyRegistrations(),
+          getAllPengumuman()
         ]);
         setEvents(eventResponse.data);
         setMyRegistrations(registrationResponse.data);
+        setPengumuman(pengumumanResponse.data || []);
       } catch (error) {
         toast.error('Gagal memuat data homepage.');
       } finally {
@@ -103,7 +84,7 @@ const HomePage = () => {
   const handleRegister = async (eventId) => {
     setIsRegistering(true);
     try {
-      const response = await registerForEvent(eventId);
+       const response = await registerForEvent(eventId);
       setNewRegistration(response.data);
       // Add to local state to update UI immediately
       setMyRegistrations(prev => [...prev, response.data]);
@@ -132,11 +113,11 @@ const HomePage = () => {
       onClick: () => setIsVaksinasiOpen(true)
     },
     { 
-      name: 'Bansos Digital', 
-      icon: FileText, 
+      name: 'Pengumuman Resmi', 
+      icon: Megaphone, 
       color: 'bg-[#FEF3C7]', 
       iconColor: 'text-[#D97706]', 
-      onClick: () => setIsBansosOpen(true)
+      onClick: () => setIsPengumumanOpen(true)
     },
     { 
       name: 'UMKM Corner', 
@@ -144,6 +125,13 @@ const HomePage = () => {
       color: 'bg-[#DBEAFE]', 
       iconColor: 'text-[#0047AB]', 
       onClick: () => navigate('/warga/umkm')
+    },
+    { 
+      name: 'Aspirasi Warga', 
+      icon: MessageSquare, 
+      color: 'bg-[#F3E8FF]', 
+      iconColor: 'text-[#8B5CF6]', 
+      onClick: () => navigate('/warga/aspirasi')
     },
   ];
 
@@ -211,7 +199,7 @@ const HomePage = () => {
       </div>
 
       {/* Services Icons */}
-      <div className="px-5 mt-12 grid grid-cols-4 gap-4 max-w-lg mx-auto">
+      <div className="px-5 mt-12 grid grid-cols-5 gap-4 max-w-lg mx-auto">
         {services.map((service, idx) => (
           <button key={idx} onClick={service.onClick} className="flex flex-col items-center group text-center">
             <div className={`${service.color} ${service.iconColor} w-14 h-14 rounded-3xl flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-all duration-300 transform group-hover:rotate-6`}>
@@ -287,13 +275,13 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* NEW: Penyaluran Bansos Column */}
+      {/* NEW: Pengumuman Terbaru Column */}
       <div className="mt-12 px-6 space-y-6 max-w-lg mx-auto">
         <div className="flex items-center justify-between">
-           <h3 className="text-lg font-black text-gray-900 tracking-tight">Penyaluran Bansos</h3>
-           <div className="bg-green-50 px-3 py-1 rounded-full flex items-center space-x-1.5">
-              <div className="w-1 h-1 bg-green-500 rounded-full animate-ping"></div>
-              <span className="text-[8px] font-black text-green-600 uppercase tracking-widest">Live Update</span>
+           <h3 className="text-lg font-black text-gray-900 tracking-tight">Pengumuman Terbaru</h3>
+           <div className="bg-blue-50 px-3 py-1 rounded-full flex items-center space-x-1.5">
+              <div className="w-1 h-1 bg-[#0047AB] rounded-full animate-ping"></div>
+              <span className="text-[8px] font-black text-[#0047AB] uppercase tracking-widest">Informasi</span>
            </div>
         </div>
 
@@ -302,29 +290,26 @@ const HomePage = () => {
              [1, 2].map(i => (
                <div key={i} className="w-full h-24 bg-white rounded-[32px] animate-pulse border border-gray-100 shadow-sm" />
              ))
-           ) : mockBansosDist.map((dist) => (
-             <div key={dist.id} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex items-center space-x-5 group hover:shadow-2xl transition-all duration-500">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
-                  dist.status === 'Sedang Berlangsung' ? 'bg-orange-50 text-orange-600' : 
-                  dist.status === 'Terjadwal' ? 'bg-blue-50 text-[#0047AB]' : 'bg-green-50 text-green-600'
-                }`}>
-                   <Clock size={24} strokeWidth={2.5} />
+           ) : pengumuman.length === 0 ? (
+             <div className="bg-white p-8 rounded-[32px] border border-gray-100 text-center text-gray-400 font-bold text-xs">
+                Belum ada pengumuman saat ini.
+             </div>
+           ) : pengumuman.slice(0, 3).map((item) => (
+             <div key={item.id} onClick={() => setIsPengumumanOpen(true)} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-xl shadow-blue-900/5 flex items-center space-x-5 group hover:shadow-2xl transition-all duration-500 cursor-pointer">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner bg-blue-50 text-[#0047AB]">
+                   <Megaphone size={24} strokeWidth={2.5} />
                 </div>
                 <div className="flex-1 min-w-0">
                    <div className="flex items-center justify-between mb-1">
-                      <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
-                        dist.status === 'Sedang Berlangsung' ? 'bg-orange-100 text-orange-700' : 
-                        dist.status === 'Terjadwal' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-                      }`}>
-                         {dist.status}
+                      <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-blue-100 text-blue-700">
+                         PENGUMUMAN
                       </span>
-                      <p className="text-[9px] font-bold text-gray-300">{dist.date}</p>
+                      <p className="text-[9px] font-bold text-gray-300">
+                         {new Date(item.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
+                      </p>
                    </div>
-                   <h4 className="font-black text-gray-800 text-sm truncate">{dist.title}</h4>
-                   <div className="flex items-center space-x-2 text-gray-400 mt-1">
-                      <UserIcon size={10} strokeWidth={3} />
-                      <span className="text-[9px] font-black uppercase tracking-tighter">Target: {dist.total_warga}</span>
-                   </div>
+                   <h4 className="font-black text-gray-800 text-sm truncate">{item.judul}</h4>
+                   <p className="text-xs text-gray-400 mt-1 line-clamp-1 font-medium">{item.konten}</p>
                 </div>
                 <div className="text-gray-200 group-hover:text-[#0047AB] transition-colors">
                    <ChevronRight size={18} strokeWidth={3} />
@@ -333,9 +318,11 @@ const HomePage = () => {
            ))}
         </div>
         
-        <button className="w-full py-4 bg-gray-50 border border-gray-100 rounded-[28px] text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-[#0047AB] transition-all active:scale-95">
-           Lihat Selengkapnya
-        </button>
+        {pengumuman.length > 0 && (
+          <button onClick={() => setIsPengumumanOpen(true)} className="w-full py-4 bg-gray-50 border border-gray-100 rounded-[28px] text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-[#0047AB] transition-all active:scale-95">
+             Lihat Selengkapnya
+          </button>
+        )}
       </div>
 
       {/* Bottom Navigation */}
@@ -391,7 +378,7 @@ const HomePage = () => {
       {/* Drawers */}
       <ChatDrawer isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
       <PersuratanDrawer isOpen={isPersuratanOpen} onClose={() => setIsPersuratanOpen(false)} />
-      <BansosDrawer isOpen={isBansosOpen} onClose={() => setIsBansosOpen(false)} />
+      <PengumumanDrawer isOpen={isPengumumanOpen} onClose={() => setIsPengumumanOpen(false)} />
       <VaksinasiDrawer isOpen={isVaksinasiOpen} onClose={() => setIsVaksinasiOpen(false)} />
 
       {selectedEvent && (

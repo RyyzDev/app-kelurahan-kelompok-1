@@ -34,6 +34,7 @@ model User {
   orders          Order[]
   event_registrations EventRegistration[]
   pendaftaran_vaksinasi PendaftaranVaksinasi[]
+  aspirasi      Aspirasi[]
 
   @@map("users")
 }
@@ -245,4 +246,27 @@ model PendaftaranVaksinasi {
 
   @@unique([user_id, jadwal_id])
   @@map("pendaftaran_vaksinasi")
+}
+
+model Pengumuman {
+  id        String   @id @default(uuid())
+  judul     String
+  konten    String
+  tanggal   DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("pengumuman")
+}
+
+model Aspirasi {
+  id        String   @id @default(uuid())
+  user_id   String
+  pesan     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("aspirasi")
 }

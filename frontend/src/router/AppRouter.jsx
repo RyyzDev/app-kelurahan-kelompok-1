@@ -26,6 +26,9 @@ import VaksinasiAdminPage from '../pages/admin/VaksinasiAdminPage';
 import UsersPage from '../pages/admin/UsersPage';
 import ScanPage from '../pages/petugas/ScanPage';
 import AdminLayout from '../components/layout/AdminLayout';
+import PengumumanAdminPage from '../pages/admin/PengumumanAdminPage';
+import AntrianAdminPage from '../pages/admin/AntrianAdminPage';
+import AspirasiAdminPage from '../pages/admin/AspirasiAdminPage';
 
 const UnauthorizedPage = () => (
   <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
@@ -273,6 +276,30 @@ const AppRouter = () => {
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
                     <VaksinasiAdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/pengumuman"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <PengumumanAdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/antrian"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AntrianAdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/aspirasi"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AspirasiAdminPage />
                   </ProtectedRoute>
                 }
               />

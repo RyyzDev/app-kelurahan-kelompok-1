@@ -1,13 +1,13 @@
-import { Users, ClipboardList, Package, TrendingUp } from 'lucide-react';
+import { Users, ClipboardList, Megaphone, Calendar } from 'lucide-react';
 
-const stats = [
-  { title: 'Total Warga', value: '1,284', icon: Users, color: 'bg-blue-50', iconColor: 'text-blue-600' },
-  { title: 'Antrean Hari Ini', value: '156', icon: ClipboardList, color: 'bg-purple-50', iconColor: 'text-purple-600' },
-  { title: 'Sisa Stok Bansos', value: '420', icon: Package, color: 'bg-orange-50', iconColor: 'text-orange-600' },
-  { title: 'Tingkat Distribusi', value: '85%', icon: TrendingUp, color: 'bg-green-50', iconColor: 'text-green-600' },
-];
+const StatsCard = ({ data }) => {
+  const stats = [
+    { title: 'Total Warga', value: String(data?.totalWarga ?? 0), icon: Users, color: 'bg-blue-50', iconColor: 'text-blue-600' },
+    { title: 'Perlu Review (Surat)', value: String(data?.permohonanSurat ?? 0), icon: ClipboardList, color: 'bg-purple-50', iconColor: 'text-purple-600' },
+    { title: 'Total Pengumuman', value: String(data?.totalPengumuman ?? 0), icon: Megaphone, color: 'bg-orange-50', iconColor: 'text-orange-600' },
+    { title: 'Event Aktif', value: String(data?.totalEvent ?? 0), icon: Calendar, color: 'bg-green-50', iconColor: 'text-green-600' },
+  ];
 
-const StatsCard = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
       {stats.map((item, index) => (
